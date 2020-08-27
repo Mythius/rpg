@@ -17,7 +17,7 @@ function contextmenu(element,callback,...items){
 			hide(ctx);
 		});
 	}
-	document.body.appendChild(ctx);
+	game.appendChild(ctx);
 	element.on('contextmenu',function(e){
 		e.preventDefault();
 		ctx.style.left = e.clientX + 'px';
@@ -26,7 +26,6 @@ function contextmenu(element,callback,...items){
 		event = e;
 	});
 	document.on('mousedown',function(e){
-		console.log(e);
 		if(e.path.indexOf(ctx) == -1){
 			hide(ctx);
 		}

@@ -71,10 +71,10 @@ class Grid{
             tile.draw_box();
         });
     }
-    getActiveTile() {
+    getActiveTile(x,y) {
         let result;
         this.forEach(tile => {
-            if (tile.hasPoint(mouse.pos.x,mouse.pos.y)) {
+            if (tile.hasPoint(x?x:mouse.pos.x,y?y:mouse.pos.y)) {
                 result = tile;
                 return true;
             }

@@ -1,3 +1,4 @@
+const game = obj('game');
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 var STARTED = false;
@@ -160,6 +161,9 @@ document.on('keydown',e=>{
 		let c = this.getCenter();
 		let s2 = this.grid.scale/2;
 		ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
+		if(this.img){
+			ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2)
+		}
 	}
 
 	Grid.prototype.draw = function(){

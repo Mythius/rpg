@@ -3,7 +3,7 @@ var sprites = [];
 
 function start(){
 	STARTED = true;
-	canvas.requestFullscreen();
+	game.requestFullscreen();
 	mouse.start(canvas);
 	keys.start();
 	// audio.play('assets/S1.mp3',true);
@@ -28,3 +28,16 @@ function loop(){
 		Menu.health.draw();
 	}
 }
+
+var imgs = Object.keys(assets).filter(e=>true); // Update
+
+imgs.unshift('none');
+
+contextmenu(canvas,(choice,e)=>{
+	if(!Menu.paused){
+		let ac = Overworld.grid.getActiveTile(e.clientX,e.clientY);
+		if(ac){
+			ac.img = choice=='none'?'':assets[choice];
+		}
+	}
+},...imgs);

@@ -2,7 +2,7 @@ ctx{
 	position: fixed;
 	background-color: white;
 	border: 1px solid gray;
-	width: 130px;
+	width: 200px;
 	box-sizing: border-box;
 }
 ctx > item{
