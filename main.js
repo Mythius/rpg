@@ -10,9 +10,15 @@ function start(){
 	loop();
 }
 
+var STOP = false;
+
+function breakloop(){
+	STOP = true;
+	// close();
+}
 
 function loop(){
-	setTimeout(loop,1000/40);
+	if(!STOP) setTimeout(loop,1000/40);
 	ctx.clearRect(-2,-2,canvas.width+2,canvas.width+2);
 	if(keys.down('e')) {
 		Menu.paused = !Menu.paused;

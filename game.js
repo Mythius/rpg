@@ -27,6 +27,7 @@ document.on('keydown',e=>{
 
 	mod.paused = false;
 	mod.draw = function(){
+		ctx.font = '90px ps2p';
 		if(!mod.paused) return;
 
 		if(keys.down('w') || keys.down('arrowup')){
@@ -59,6 +60,9 @@ document.on('keydown',e=>{
 		for(let meter of meters){
 			meter.draw();
 		}
+		ctx.fillStyle = 'black';
+		ctx.fillText('PAUSED',450,150);
+		ctx.fill();
 	}
 	var meters = [];
 	class Meter{
@@ -152,7 +156,7 @@ document.on('keydown',e=>{
 	var dash_speed = 30;
 	var dash_current = 0;
 
-	var g = new Grid(15,6,100);
+	var g = new Grid(3,1,960);
 	ow.grid = g;
 	g.offsetX = canvas.width/2 - g.width*g.scale/2;
 	g.offsetY = canvas.height/2 - g.height*g.scale/2;
@@ -160,7 +164,7 @@ document.on('keydown',e=>{
 	Tile.prototype.draw = function(){
 		let c = this.getCenter();
 		let s2 = this.grid.scale/2;
-		ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
+		// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
 		if(this.img){
 			ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2)
 		}

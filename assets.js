@@ -22,3 +22,6 @@ createAsset('assets/icons/elem1.png');
 createAsset('assets/icons/elem2.png');
 createAsset('assets/icons/elem3.png');
 createAsset('assets/icons/elem4.png');
+createAsset('assets/r1/0.png');
+createAsset('assets/r1/1.png');
+createAsset('assets/r1/2.png');
