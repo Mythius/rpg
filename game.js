@@ -156,7 +156,7 @@ document.on('keydown',e=>{
 	var dash_speed = 30;
 	var dash_current = 0;
 
-	var g = new Grid(3,1,960);
+	var g = new Grid(5,2,960);
 	ow.grid = g;
 	g.offsetX = canvas.width/2 - g.width*g.scale/2;
 	g.offsetY = canvas.height/2 - g.height*g.scale/2;
