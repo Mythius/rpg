@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="assets.js"></script>
+	<script src="grid.js"></script>
+	<script src="helpers.js"></script>
+</head>
+<body>
+	<canvas width=600 height=400 style="background-color:black;"></canvas>
+	<script>
+		const canvas = document.querySelector('canvas');
+		const ctx = canvas.getContext('2d');
+
+		var g = new Grid(3,1,300);
+
+		Tile.prototype.draw = function(){
+			let c = this.getCenter();
+			let s2 = this.grid.scale/2;
+			// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
+			if(this.img){
+				ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2)
+			}
+		}
+
+		Grid.prototype.draw = function(){
+			
+		}
+
+		function start(){
+
+			loop();
+		}
+
+		function loop(){
+			setTimeout(loop,1000/30);
+			ctx.clearRect(-2,-2,canvas.width+2,canvas.height+2);
+			g.draw_boxes();
+		}
+
+		start();
+
+	</script>
+</body>
+</html>
