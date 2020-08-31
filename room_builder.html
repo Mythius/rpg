@@ -1,48 +1,130 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<script src="assets.js"></script>
-	<script src="grid.js"></script>
-	<script src="helpers.js"></script>
+    <script src="assets.js"></script>
+    <script src="grid.js"></script>
+    <script src="helpers.js"></script>
+    <script src="Sprite.js"></script>
+    <script>
+	    (function(g) {
+	        var mod = {};
+	        g.World = mod;
+
+	        mod.addCollisions = async function(tile, path='') {
+
+	        	let prom,text;
+
+	        	try{
+		        	prom = await fetch(path);
+		        	if(prom.url.split('/').slice(-1) != path) throw new Error('Invalid File');
+		        	text = await d.text();
+
+	        	} catch(e){
+	        		text = Array(400).fill(0).map(e=>random(0,5)).join('');
+	        	}
+
+                tile.hitboxes = new Grid(tile.grid.scale / 15, tile.grid.scale / 15, 15);
+                let i = 0;
+                tile.hitboxes.forEach(tile => {
+                    tile.solid = text[i] === '1';
+                    if(tile.solid){
+	                    new TileSprite(tile);
+                    }
+                    i++;
+                });
+	        }
+
+	        mod.touchingAny = function(char,world) {
+	        	var result = false;
+	            world.forEach(tile => {
+	            	if(tile.hitboxes){
+	            		var done = false;
+	            		tile.hitboxes.forEach(GridSprite=>{
+	            			if(char.touches(GridSprite.sprite)){
+	            				done = true;
+	            				return true;
+	            			}
+	            		});
+	            		if(done) {
+	            			result = true;
+	            			return true;
+	            		}
+	            	}
+	            });
+	            return result;
+	        }
+
+	        // Tile.prototype.touching()
+
+	    })(this);
+    </script>
 </head>
+
 <body>
-	<canvas width=600 height=400 style="background-color:black;"></canvas>
-	<script>
-		const canvas = document.querySelector('canvas');
-		const ctx = canvas.getContext('2d');
+    <canvas width=600 height=400 style="background-color:black;"></canvas>
+    <script>
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
 
-		var g = new Grid(3,1,300);
+    var s = new Sprite('assets/items/bag.png');
+    s.slideTo(500,50);
 
-		g.getTileAt(2,0).img = assets['assets/r1/1.png'];
+    var g = new Grid(3, 1, 300);
 
-		Tile.prototype.draw = function(){
-			let c = this.getCenter();
-			let s2 = this.grid.scale/2;
-			// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
-			if(this.img){
-				ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2)
-			}
-		}
+    g.getTileAt(2, 0).img = assets['assets/r1/1.png'];
 
-		Grid.prototype.draw = function(){
-			this.forEach(tile=>{
-				tile.draw();
-			});
-		}
 
-		function start(){
+    Tile.prototype.draw = function(color) {
+        if (this.hitboxes) {
+            this.hitboxes.draw('gray');
+            this.hitboxes.offsetX = this.grid.offsetX + this.x * this.grid.scale;
+            this.hitboxes.offsetY = this.grid.offsetY + this.y * this.grid.scale;
+        }
+        let c = this.getCenter();
+        let s2 = this.grid.scale / 2;
+        ctx.beginPath();
+        ctx.rect(c.x - s2, c.y - s2, s2 * 2, s2 * 2);
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        // ctx.stroke();
+        if(this.solid){
+        	// ctx.fill();
+        	this.sprite.position = this.getCenter();
+        	if(s.touches(this.sprite)){
+	        	ctx.fillStyle = 'green';
+	        	ctx.fill();
+        	}
+        	this.sprite.DRAW();
+        }
+        if (this.img) {
+            ctx.drawImage(this.img, c.x - s2, c.y - s2, s2 * 2, s2 * 2)
+        }
+    }
 
-			loop();
-		}
+    Grid.prototype.draw = function(color = 'white') {
+        this.forEach(tile => {
+            tile.draw(color);
+        });
+    }
 
-		function loop(){
-			setTimeout(loop,1000/30);
-			ctx.clearRect(-2,-2,canvas.width+2,canvas.height+2);
-			g.draw();
-		}
+    function start() {
+        loop();
+    }
 
-		start();
+    function loop() {
+        setTimeout(loop, 1000 / 30);
+        ctx.clearRect(-2, -2, canvas.width + 2, canvas.height + 2);
+        g.draw();
+        s.draw();
+    }
 
-	</script>
+    start();
+
+    var example = g.getTileAt(1, 0);
+
+    World.addCollisions(example);
+    </script>
 </body>
+
 </html>

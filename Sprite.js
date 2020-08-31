@@ -365,8 +365,9 @@ class Sprite extends Hitbox{
 		}
 	}
 }
-class TileSprite{
+class TileSprite extends Hitbox{
 	constructor(tile){
+		super(tile.getCenter(),tile.grid.scale,tile.grid.scale);
 		const THIS = this;
 		this.tile = tile;
 		this.animation = null;
