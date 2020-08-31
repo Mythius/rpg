@@ -89,7 +89,7 @@ class Animation{
 		this.element = element;
 		this.current_frame = 0;
 		this.#animID=0;
-		this.#frLists = file.frames.map(e=>e.frames)
+		this.#frLists = file.frames.map(e=>e.frames);
 		this.names = file.frames.map(e=>e.name);
 		this.fps = 30;
 		this.frame_count = file.count;
@@ -125,6 +125,7 @@ class Animation{
 					this.current_frame=0;
 					this.loop();
 				} else {
+					debugger;
 					this.playing = false;
 					this.stop();
 				}
@@ -162,7 +163,7 @@ class Animation{
 		}
 	}
 	stop(){
-		let arr = this.#frLists[this.#animID]
+		let arr = this.#frLists[this.#animID];
 		if(arr){
 			this.element.src = this.frames[arr[arr.length-1]];
 		}
@@ -170,6 +171,14 @@ class Animation{
 		this.isLoop = false;
 		this.name = "";
 		this.end(1);
+	}
+	set frame(n){
+		if(n < this.frames.length){
+			this.current_frame = n;
+			this.element.src = this.frames[n];
+		} else {
+			console.warn(`Not a valid Frame: ${n}`);
+		}
 	}
 }
 class Hitbox{
@@ -326,7 +335,7 @@ class Sprite extends Hitbox{
 		return new Promise(resolve=>{
 			Animation.xml(animation_path,data=>{
 				this.animation = new Animation(this.element,data);
-				resolve();
+				resolve(this.animation);
 			});
 		});
 	}
@@ -354,5 +363,40 @@ class Sprite extends Hitbox{
 			let d = distance(this.pos.x,this.pos.y,sprite.pos.x,sprite.pos.y);
 			return d;
 		}
+	}
+}
+class TileSprite{
+	constructor(tile){
+		const THIS = this;
+		this.tile = tile;
+		this.animation = null;
+		this.transformX = 1;
+		tile.img = new Image();
+		tile.img.src = "";
+		this.angle = 0;
+		tile.drawImg = function(){
+			let c = tile.getCenter();
+			let s = tile.grid.scale;
+			ctx.beginPath();
+			ctx.save();
+			ctx.translate(c.x,c.y);
+			ctx.rotate(THIS.angle * Math.PI / 180);
+			ctx.scale(THIS.transformX,1);
+			ctx.drawImage(this.img,-s/2,-s/2,s,s);
+			ctx.restore();
+
+			if(THIS.animation){
+				THIS.animation.loop();
+			}
+		}
+		tile.sprite = this;
+	}
+	addAnimation(path){
+		return new Promise(resolve=>{
+			Animation.xml(path,text=>{
+				this.animation = new Animation(this.tile.img,text);
+				resolve(this.animation);
+			});
+		});
 	}
 }

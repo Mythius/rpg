@@ -13,6 +13,8 @@
 
 		var g = new Grid(3,1,300);
 
+		g.getTileAt(2,0).img = assets['assets/r1/1.png'];
+
 		Tile.prototype.draw = function(){
 			let c = this.getCenter();
 			let s2 = this.grid.scale/2;
@@ -23,7 +25,9 @@
 		}
 
 		Grid.prototype.draw = function(){
-			
+			this.forEach(tile=>{
+				tile.draw();
+			});
 		}
 
 		function start(){
@@ -34,7 +38,7 @@
 		function loop(){
 			setTimeout(loop,1000/30);
 			ctx.clearRect(-2,-2,canvas.width+2,canvas.height+2);
-			g.draw_boxes();
+			g.draw();
 		}
 
 		start();
