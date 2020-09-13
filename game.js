@@ -305,6 +305,8 @@ document.on('keydown',e=>{
 
 	ow.export = function(){
 		var result = {};
+		result.song = "";
+		result.sprites = [];
 		result.width = g.width;
 		result.height = g.height;
 		result.scale = g.scale;
