@@ -215,7 +215,7 @@ document.on('keydown',e=>{
 		ctx.stroke();
 	}
 
-	ow.loadMap = function(mappath){
+	ow.loadMap = async function(mappath){
 		if(!mappath){
 			g = new Grid(3,1,960);
 			// audio.play('assets/S1.mp3',true);
@@ -224,6 +224,27 @@ document.on('keydown',e=>{
 			g.getTileAt(2,0).img = assets['assets/r1/3.png'];
 
 			g.forEach(tile=>{tile.addGrid(15)});
+		} else {
+			var request = await fetch(mappath);
+			var d = await request.json();
+			g = new Grid(d.width,d.height,d.scale);
+			let i = 0;
+			g.forEach(tile=>{
+				let path = d.maps[i].src.match(/assets.*/gi)[0];
+				tile.img = assets[path]
+				if(d.maps[i].sub.size){
+					tile.addGrid(d.maps[i].sub.size);
+					let j=0;
+					tile.child.forEach(subtile=>{
+						if(d.maps[i].sub.tilecodes[j] & 1){
+							subtile.solid = true;
+						}
+						// Read Flags here
+						j++;
+					});
+				}
+				i++;
+			});
 		}
 	}
 
@@ -309,5 +330,4 @@ document.on('keydown',e=>{
 		// download('room.json',JSON.stringify(result));
 		return result;
 	}
-
 })(this);

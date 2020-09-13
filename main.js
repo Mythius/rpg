@@ -8,7 +8,7 @@ function start(){
 	mouse.start(canvas);
 	keys.start();
 
-	Overworld.loadMap();
+	Overworld.loadMap('assets/r1/room.json');
 
 	loop();
 }
@@ -18,8 +18,8 @@ var STOP = false;
 var player = new Sprite('assets/blue-knight/0.png');
 player.addAnimation('assets/blue-knight/blue-knight.anims');
 player.position = new Vector(canvas.width/2,canvas.height/2);
-player.scale = new Vector(.45,.89);
-player.setOffset = new Vector(-10,15);
+player.setScale = new Vector(.5,.5);
+player.setOffset = new Vector(0,30);
 
 function breakloop(){
 	STOP = true;
@@ -44,17 +44,4 @@ function loop(){
 	}
 }
 
-var imgs = Object.keys(assets).filter(e=>true); // Update
-
-imgs.unshift('none');
-
-contextmenu(canvas,(choice,e)=>{
-	if(!Menu.paused){
-		let pos = mouse.transformPos(e);
-		let ac = Overworld.grid.getActiveTile(pos.x,pos.y);
-		if(ac){
-			ac.img = choice=='none'?'':assets[choice];
-		}
-	}
-},...imgs);
-
+// contextmenu()
