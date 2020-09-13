@@ -166,6 +166,7 @@ document.on('keydown',e=>{
 
 	Tile.prototype.addGrid = function(rows=10){
         let scl = this.grid.scale / rows;
+        this.subsize = rows;
         this.child = new Grid(rows,rows,scl);
     }
 
@@ -214,7 +215,6 @@ document.on('keydown',e=>{
 		ctx.stroke();
 	}
 
-
 	ow.loadMap = function(mappath){
 		if(!mappath){
 			g = new Grid(3,1,960);
@@ -223,7 +223,7 @@ document.on('keydown',e=>{
 			g.getTileAt(1,0).img = assets['assets/r1/1.png'];
 			g.getTileAt(2,0).img = assets['assets/r1/3.png'];
 
-			g.forEach(tile=>{tile.addGrid(9)});
+			g.forEach(tile=>{tile.addGrid(15)});
 		}
 	}
 
@@ -283,7 +283,31 @@ document.on('keydown',e=>{
 	}
 
 	ow.export = function(){
-
+		var result = {};
+		result.width = g.width;
+		result.height = g.height;
+		result.scale = g.scale;
+		result.maps = [];
+		for(let tile of g.tiles.flat()){
+			let m = {};
+			m.src = tile.img.src;
+			m.sub = {};
+			m.sub.size = tile.subsize;
+			m.sub.tilecodes = [];
+			if(tile.subsize){
+				for(let subtile of tile.child.tiles.flat()){
+					let tilecode = 0;
+					if(subtile.solid) tilecode |= 1;
+					// Add Flags on Each Tile 
+					// Each Flag represents a property or event
+					// Add Custom event codes
+					m.sub.tilecodes.push(tilecode);
+				}
+			}
+			result.maps.push(m);
+		}
+		// download('room.json',JSON.stringify(result));
+		return result;
 	}
 
 })(this);

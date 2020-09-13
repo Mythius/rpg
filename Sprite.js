@@ -295,8 +295,8 @@ class Sprite extends Hitbox{
 		this.element.onload = function(){
 			if(once) return;
 			once = true;
-			THIS.width = THIS.element.width
-			THIS.height = THIS.element.height
+			THIS.width = THIS.element.width;
+			THIS.height = THIS.element.height;
 		}
 		this.move = data => {};
 	}
