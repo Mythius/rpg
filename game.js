@@ -232,27 +232,27 @@ document.on('keydown',e=>{
 		if(keys.down('w') || keys.down('ArrowUp')){
 			dash(0,dash_speed)
 			g.offsetY += speed;
-			player.animation.play('walk-up',true);
+			player.animation.play('walk-up');
 		}
 
 		if(keys.down('a') || keys.down('ArrowLeft')){
 			dash(dash_speed,0)
 			g.offsetX += speed;
-			player.animation.play('walk-side',true);
+			player.animation.play('walk-side');
 			player.transformX = -1;
 		}
 
 		if(keys.down('d') || keys.down('ArrowRight')){
 			dash(-dash_speed,0)
 			g.offsetX -= speed;
-			player.animation.play('walk-side',true);
+			player.animation.play('walk-side');
 			player.transformX = 1;
 		}
 
 		if(keys.down('s') || keys.down('ArrowDown')){
 			dash(0,-dash_speed)
 			g.offsetY -= speed;
-			player.animation.play('walk-down',true);
+			player.animation.play('walk-down');
 		}
 
 		function dash(dx,dy){

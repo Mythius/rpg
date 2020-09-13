@@ -98,13 +98,19 @@ class Animation{
 		this.playing = false;
 		this.name = "";
 		this.last_time = new Date().getTime();
-		this.next_frame = document.createElement('img');
+		this.next_frame = null;
 		this.end = () => {};
 		for(let i=0;i<this.frame_count;i++){
-			this.frames.push(this.pad(i));
+			this.frames.push(createImage(this.pad(i)));
 		}
-		this.element.src = this.frames[0];
-		this.next_frame.src = this.frames[0];
+		this.element.src = this.frames[0].src;
+		this.next_frame = this.frames[0];
+
+		function createImage(path){
+			let i = document.createElement('img');
+			i.src = path;
+			return i;
+		}
 	}
 	pad(n){
 		let len = (this.frame_count+'').length;
@@ -118,7 +124,7 @@ class Animation{
 			if(this.current_frame<this.#frLists[this.#animID].length){
 				let id = this.#animID;
 				this.element.src = this.next_frame.src;
-				this.next_frame.src=this.frames[this.#frLists[id][this.current_frame]];
+				this.next_frame = this.frames[this.#frLists[id][this.current_frame]];
 				this.current_frame++;
 			} else {
 				if(this.isLoop){
@@ -141,14 +147,14 @@ class Animation{
 		if(this.playing && this.name == name) return new Promise(r=>r(0));
 		this.isLoop = is_loop;
 		this.playing = true;
-		this.current_frame = 0;
+		this.current_frame = 1;
 		var index = this.names.indexOf(name);
 		if(index!=-1){
 			this.fps = this.file.frames[index].fps;
 			this.#animID = index;
 			this.name = name;
 			this.current_frame = 1;
-			this.next_frame.src = this.frames[this.#frLists[index][Math.min(1,this.#frLists[index].length)]];
+			this.next_frame = this.frames[this.#frLists[index][Math.min(0,this.#frLists[index].length)]];
 			this.last_time = new Date().getTime();
 			this.#prom = new Promise(resolve=>{
 				THIS.end=c=>{
@@ -164,24 +170,16 @@ class Animation{
 	stop(){
 		let arr = this.#frLists[this.#animID];
 		if(arr){
-			this.element.src = this.frames[arr[arr.length-1]];
+			this.element.src = this.frames[arr[arr.length-1]].src;
 		}
 		this.playing = false;
 		this.isLoop = false;
 		this.name = "";
 		this.end(1);
 	}
-	set frame(n){
-		if(n < this.frames.length){
-			this.current_frame = n;
-			this.element.src = this.frames[n];
-		} else {
-			console.warn(`Not a valid Frame: ${n}`);
-		}
-	}
 }
 class Hitbox{
-	static show = true;
+	static show = false;
 	constructor(pos,w,h){
 		this.pos = pos;
 		this.w = w;
@@ -293,6 +291,7 @@ class Sprite extends Hitbox{
 		this.animation;
 		this.transformX = 1;
 		this.sliding = false;
+		this.visible = true;
 		this.element.onload = function(){
 			if(once) return;
 			once = true;
@@ -302,6 +301,7 @@ class Sprite extends Hitbox{
 		this.move = data => {};
 	}
 	draw(){
+		if(!this.visible) return;
 		if(this.animation) this.animation.loop();
 		if(this.sliding) {
 			if(this.#iter <= this.#max_iter){
@@ -309,7 +309,7 @@ class Sprite extends Hitbox{
 				this.position = new Vector(p.x+this.#slide_x,p.y+this.#slide_y);
 			} else {
 				this.sliding = false;
-				if(typeof this.#end_slide == "function"){
+				if(typeof this.#end_slide == 'function'){
 					this.#end_slide();
 				}
 			}
@@ -334,7 +334,7 @@ class Sprite extends Hitbox{
 		return new Promise(resolve=>{
 			Animation.xml(animation_path,data=>{
 				this.animation = new Animation(this.element,data);
-				resolve(this.animation);
+				resolve();
 			});
 		});
 	}

@@ -1,5 +1,6 @@
 var sprites = [];
 
+Hitbox.show = true;
 
 function start(){
 	STARTED = true;
@@ -17,6 +18,8 @@ var STOP = false;
 var player = new Sprite('assets/blue-knight/0.png');
 player.addAnimation('assets/blue-knight/blue-knight.anims');
 player.position = new Vector(canvas.width/2,canvas.height/2);
+player.scale = new Vector(.45,.89);
+player.setOffset = new Vector(-10,15)
 
 function breakloop(){
 	STOP = true;
