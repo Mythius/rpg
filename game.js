@@ -2,6 +2,7 @@ const game = obj('game');
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 var STARTED = false;
+var DEBUGGING = false;
 document.on('keydown',e=>{
 	if(STARTED) return;
 	start();
@@ -191,10 +192,10 @@ document.on('keydown',e=>{
 		}
 		if(this.sprite){
 			this.sprite.position = this.getCenter();
-			this.sprite.DRAW(this.room?'yellow':this.dialog?this.event?'purple':'red':this.event?'blue':'transparent');
+			if(DEBUGGING) this.sprite.DRAW(this.room?'yellow':this.dialog?this.event?'purple':'red':this.event?'blue':'transparent');
 		}
 		if(this.solid){
-			if(true){
+			if(DEBUGGING){
 				ctx.beginPath();
 				ctx.lineWidth = 3;
 				ctx.strokeStyle = 'white';
