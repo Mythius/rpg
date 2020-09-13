@@ -1,16 +1,22 @@
-
 var sprites = [];
+
 
 function start(){
 	STARTED = true;
 	game.requestFullscreen();
 	mouse.start(canvas);
 	keys.start();
-	// audio.play('assets/S1.mp3',true);
+
+	Overworld.loadMap();
+
 	loop();
 }
 
 var STOP = false;
+
+var player = new Sprite('assets/blue-knight/0.png');
+player.addAnimation('assets/blue-knight/blue-knight.anims');
+player.position = new Vector(canvas.width/2,canvas.height/2);
 
 function breakloop(){
 	STOP = true;
@@ -41,9 +47,11 @@ imgs.unshift('none');
 
 contextmenu(canvas,(choice,e)=>{
 	if(!Menu.paused){
-		let ac = Overworld.grid.getActiveTile(e.clientX,e.clientY);
+		let pos = mouse.transformPos(e);
+		let ac = Overworld.grid.getActiveTile(pos.x,pos.y);
 		if(ac){
 			ac.img = choice=='none'?'':assets[choice];
 		}
 	}
 },...imgs);
+

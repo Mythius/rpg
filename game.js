@@ -161,31 +161,70 @@ document.on('keydown',e=>{
 	g.offsetX = canvas.width/2 - g.width*g.scale/2;
 	g.offsetY = canvas.height/2 - g.height*g.scale/2;
 
-	Tile.prototype.draw = function(){
+
+	Tile.prototype.solid = false;
+
+	Tile.prototype.addGrid = function(rows=10){
+        let scl = this.grid.scale / rows;
+        this.child = new Grid(rows,rows,scl);
+    }
+
+	Tile.prototype.draw = function(lines=false){
 		let c = this.getCenter();
 		let s2 = this.grid.scale/2;
 		// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
 		if(this.img){
 			ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2)
 		}
+		if(this.hasPoint(mouse.pos.x,mouse.pos.y) && mouse.down && !this.child){
+			this.solid = !this.solid;
+			mouse.down = false;
+		}
+		if(lines || this.solid){
+			ctx.beginPath();
+			ctx.lineWidth = 3;
+			ctx.strokeStyle = 'white';
+			ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
+			if(this.solid){
+				ctx.moveTo(c.x-s2*.8,c.y-s2*.8);
+				ctx.lineTo(c.x+s2*.8,c.y+s2*.8);
+				ctx.moveTo(c.x-s2*.8,c.y+s2*.8);
+				ctx.lineTo(c.x+s2*.8,c.y-s2*.8);
+			}
+			ctx.stroke();
+		}
+		if(this.child){
+			this.child.offsetX = c.x-s2;
+			this.child.offsetY = c.y-s2;
+			this.child.draw(true);
+		}
 	}
 
-	Grid.prototype.draw = function(){
+	Grid.prototype.draw = function(lines=false){
 		ctx.beginPath();
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = 'white';
-		this.forEach(tile=>{tile.draw()});
+		this.forEach(tile=>{tile.draw(lines)});
 		ctx.stroke();
 
 		ctx.strokeStyle = 'green';
 		ctx.beginPath();
-		let at = g.getActiveTile();
-		if(at) at.draw();
+		// let at = g.getActiveTile();
+		// if(at) at.draw();
 		ctx.stroke();
 	}
 
-	ow.loadMap = function(){
 
+	ow.loadMap = function(mappath){
+		if(!mappath){
+			g = new Grid(3,1,960);
+			// audio.play('assets/S1.mp3',true);
+			g.getTileAt(0,0).img = assets['assets/r1/2.png'];
+			g.getTileAt(1,0).img = assets['assets/r1/1.png'];
+			g.getTileAt(2,0).img = assets['assets/r1/3.png'];
+
+			g.forEach(tile=>{tile.addGrid(9)});
+		}
 	}
 
 	ow.draw = function(){
@@ -193,21 +232,27 @@ document.on('keydown',e=>{
 		if(keys.down('w') || keys.down('ArrowUp')){
 			dash(0,dash_speed)
 			g.offsetY += speed;
+			player.animation.play('walk-up',true);
 		}
 
 		if(keys.down('a') || keys.down('ArrowLeft')){
 			dash(dash_speed,0)
 			g.offsetX += speed;
+			player.animation.play('walk-side',true);
+			player.transformX = -1;
 		}
 
 		if(keys.down('d') || keys.down('ArrowRight')){
 			dash(-dash_speed,0)
 			g.offsetX -= speed;
+			player.animation.play('walk-side',true);
+			player.transformX = 1;
 		}
 
 		if(keys.down('s') || keys.down('ArrowDown')){
 			dash(0,-dash_speed)
 			g.offsetY -= speed;
+			player.animation.play('walk-down',true);
 		}
 
 		function dash(dx,dy){
@@ -226,6 +271,8 @@ document.on('keydown',e=>{
 		dash_current = Math.max(dash_current-1,0);
 
 		g.draw();
+
+		player.draw();
 	}
 
 	ow.addSprite = function(properties={path:''}){
@@ -233,6 +280,10 @@ document.on('keydown',e=>{
 		if(properties.animation){
 			sprite.addAnimation(properties.animation);
 		}
+	}
+
+	ow.export = function(){
+
 	}
 
 })(this);

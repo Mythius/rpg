@@ -125,7 +125,6 @@ class Animation{
 					this.current_frame=0;
 					this.loop();
 				} else {
-					debugger;
 					this.playing = false;
 					this.stop();
 				}

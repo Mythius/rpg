@@ -4,18 +4,26 @@ class mouse{
     static pos = { x: 0, y: 0 };
     static down = false;
     static right = false;
+    static transformPos(e){
+        var x,y;
+        var element = e.target;
+        let br = element.getBoundingClientRect();
+        if(FULLSCREEN){
+            let ratio = window.innerHeight/canvas.height;
+            let offset = (window.innerWidth-(canvas.width*ratio))/2;
+            x = map(e.clientX-br.left-offset,0,canvas.width*ratio,0,element.width);
+            y = map(e.clientY-br.top,0,canvas.height*ratio,0,element.height);
+        } else {
+            x = e.clientX - br.left;
+            y = e.clientY - br.top;
+        }
+        return {x,y};
+    }
     static start(element=document.documentElement) {
         function mousemove(e) {
-            let br = element.getBoundingClientRect();
-            if(FULLSCREEN){
-                let ratio = window.innerHeight/canvas.height;
-                let offset = (window.innerWidth-(canvas.width*ratio))/2;
-                mouse.pos.x = map(e.clientX-br.left-offset,0,canvas.width*ratio,0,element.width);
-                mouse.pos.y = map(e.clientY-br.top,0,canvas.height*ratio,0,element.height);
-            } else {
-                mouse.pos.x = e.clientX - br.left;
-                mouse.pos.y = e.clientY - br.top;
-            }
+            let pos = mouse.transformPos(e);
+            mouse.pos.x = pos.x;
+            mouse.pos.y = pos.y;
         }
         function mouseup(e) {
             if(e.which == 1){
