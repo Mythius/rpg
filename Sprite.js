@@ -17,6 +17,12 @@ class Vector{
 		this.x = x;
 		this.y = y;
 	}
+	mult(m){
+		return new Vector(this.x*m,this.y*m);
+	}
+	add(x,y){
+		return new Vector(this.x+x,this.y+y);
+	}
 	clone(){
 		return new Vector(this.x,this.y);
 	}

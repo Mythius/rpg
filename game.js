@@ -161,6 +161,8 @@ document.on('keydown',e=>{
 	g.offsetX = canvas.width/2 - g.width*g.scale/2;
 	g.offsetY = canvas.height/2 - g.height*g.scale/2;
 
+	var prev_pos = new Vector;
+	var move_vec = new Vector;
 
 	Tile.prototype.solid = false;
 
@@ -168,6 +170,9 @@ document.on('keydown',e=>{
         let scl = this.grid.scale / rows;
         this.subsize = rows;
         this.child = new Grid(rows,rows,scl);
+        this.child.forEach(subtile=>{
+        	let ts = new TileSprite(subtile);
+        });
     }
 
 	Tile.prototype.draw = function(lines=false){
@@ -181,11 +186,17 @@ document.on('keydown',e=>{
 			this.solid = !this.solid;
 			mouse.down = false;
 		}
-		if(lines || this.solid){
+		if(this.solid){
+
+			if(this.sprite) {
+				this.sprite.position = this.getCenter();
+				this.sprite.DRAW();
+			}
+
 			ctx.beginPath();
-			ctx.lineWidth = 3;
-			ctx.strokeStyle = 'white';
-			ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
+			// ctx.lineWidth = 3;
+			// ctx.strokeStyle = 'white';
+			// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
 			if(this.solid){
 				ctx.moveTo(c.x-s2*.8,c.y-s2*.8);
 				ctx.lineTo(c.x+s2*.8,c.y+s2*.8);
@@ -246,19 +257,29 @@ document.on('keydown',e=>{
 				i++;
 			});
 		}
+		g.offsetX = g.width * g.scale / 4;
+		ow.grid = g;
 	}
 
 	ow.draw = function(){
 
+		prev_pos.x = g.offsetX;
+		prev_pos.y = g.offsetY;
+
+		move_vec.x = 0;
+		move_vec.y = 0;
+
 		if(keys.down('w') || keys.down('ArrowUp')){
 			dash(0,dash_speed)
 			g.offsetY += speed;
+			move_vec.y += speed;
 			player.animation.play('walk-up');
 		}
 
 		if(keys.down('a') || keys.down('ArrowLeft')){
 			dash(dash_speed,0)
 			g.offsetX += speed;
+			move_vec.x += speed;
 			player.animation.play('walk-side');
 			player.transformX = -1;
 		}
@@ -266,6 +287,7 @@ document.on('keydown',e=>{
 		if(keys.down('d') || keys.down('ArrowRight')){
 			dash(-dash_speed,0)
 			g.offsetX -= speed;
+			move_vec.x -= speed;
 			player.animation.play('walk-side');
 			player.transformX = 1;
 		}
@@ -273,6 +295,7 @@ document.on('keydown',e=>{
 		if(keys.down('s') || keys.down('ArrowDown')){
 			dash(0,-dash_speed)
 			g.offsetY -= speed;
+			move_vec.y -= speed;
 			player.animation.play('walk-down');
 		}
 
@@ -284,12 +307,37 @@ document.on('keydown',e=>{
 					setTimeout(()=>{
 						g.offsetX += dx;
 						g.offsetY += dy;
+						move_vec.x += dx;
+						move_vec.y += dy;
 					},1000/i);
 				}
 			}
 		}
 
 		dash_current = Math.max(dash_current-1,0);
+
+		let go_back = move_vec.mult(.1);
+		let movedout = false;
+
+		while(ow.touchingSolid(player)){
+			movedout = true;
+			g.offsetX -= go_back.x;
+			g.offsetY -= go_back.y;
+		}
+
+		if(movedout){
+			for(let i=0;i<3;i++){
+				g.offsetX -= go_back.x;
+				g.offsetY -= go_back.y;
+			}
+		}
+
+
+		// if(ow.touchingSolid(player)){
+		// 	Hitbox.show = false;
+		// } else {
+		// 	Hitbox.show = true;
+		// }
 
 		g.draw();
 
@@ -301,6 +349,18 @@ document.on('keydown',e=>{
 		if(properties.animation){
 			sprite.addAnimation(properties.animation);
 		}
+	}
+
+	ow.touchingSolid = function(sprite){
+		let result = false;
+		g.forEach(tile=>{
+			if(!tile.child) return;
+			tile.child.forEach(subtile=>{
+				result |=  subtile.solid && subtile.sprite?.touches(sprite);
+				if(result) return true;
+			});
+		});
+		return result;
 	}
 
 	ow.export = function(){
