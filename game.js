@@ -165,6 +165,9 @@ document.on('keydown',e=>{
 	var move_vec = new Vector;
 
 	Tile.prototype.solid = false;
+	Tile.prototype.dialog = false;
+	Tile.prototype.room = false;
+	Tile.prototype.event = false;
 
 	Tile.prototype.addGrid = function(rows=10){
         let scl = this.grid.scale / rows;
@@ -186,24 +189,24 @@ document.on('keydown',e=>{
 			this.solid = !this.solid;
 			mouse.down = false;
 		}
+		if(this.sprite){
+			this.sprite.position = this.getCenter();
+			this.sprite.DRAW(this.room?'yellow':this.dialog?this.event?'purple':'red':this.event?'blue':'transparent');
+		}
 		if(this.solid){
-
-			if(this.sprite) {
-				this.sprite.position = this.getCenter();
-				this.sprite.DRAW();
+			if(true){
+				ctx.beginPath();
+				ctx.lineWidth = 3;
+				ctx.strokeStyle = 'white';
+				// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
+				if(this.solid){
+					ctx.moveTo(c.x-s2*.8,c.y-s2*.8);
+					ctx.lineTo(c.x+s2*.8,c.y+s2*.8);
+					ctx.moveTo(c.x-s2*.8,c.y+s2*.8);
+					ctx.lineTo(c.x+s2*.8,c.y-s2*.8);
+				}
+				ctx.stroke();
 			}
-
-			ctx.beginPath();
-			// ctx.lineWidth = 3;
-			// ctx.strokeStyle = 'white';
-			// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
-			if(this.solid){
-				ctx.moveTo(c.x-s2*.8,c.y-s2*.8);
-				ctx.lineTo(c.x+s2*.8,c.y+s2*.8);
-				ctx.moveTo(c.x-s2*.8,c.y+s2*.8);
-				ctx.lineTo(c.x+s2*.8,c.y-s2*.8);
-			}
-			ctx.stroke();
 		}
 		if(this.child){
 			this.child.offsetX = c.x-s2;
@@ -247,8 +250,18 @@ document.on('keydown',e=>{
 					tile.addGrid(d.maps[i].sub.size);
 					let j=0;
 					tile.child.forEach(subtile=>{
-						if(d.maps[i].sub.tilecodes[j] & 1){
+						let code = d.maps[i].sub.tilecodes[j];
+						if(code & 1){
 							subtile.solid = true;
+						}
+						if(code & 2){
+							subtile.dialog = true;
+						}
+						if(code & 4){
+							subtile.event = true;
+						}
+						if(code & 8){
+							subtile.room = true;
 						}
 						// Read Flags here
 						j++;
@@ -266,15 +279,12 @@ document.on('keydown',e=>{
 		prev_pos.x = g.offsetX;
 		prev_pos.y = g.offsetY;
 
+		var anim = false;
+
+		getOut();
+
 		move_vec.x = 0;
 		move_vec.y = 0;
-
-		if(keys.down('w') || keys.down('ArrowUp')){
-			dash(0,dash_speed)
-			g.offsetY += speed;
-			move_vec.y += speed;
-			player.animation.play('walk-up');
-		}
 
 		if(keys.down('a') || keys.down('ArrowLeft')){
 			dash(dash_speed,0)
@@ -282,6 +292,7 @@ document.on('keydown',e=>{
 			move_vec.x += speed;
 			player.animation.play('walk-side');
 			player.transformX = -1;
+			anim = true;
 		}
 
 		if(keys.down('d') || keys.down('ArrowRight')){
@@ -290,13 +301,27 @@ document.on('keydown',e=>{
 			move_vec.x -= speed;
 			player.animation.play('walk-side');
 			player.transformX = 1;
+			anim = true;
+		}
+
+		getOut();
+
+		
+		move_vec.x = 0;
+		move_vec.y = 0;
+
+		if(keys.down('w') || keys.down('ArrowUp')){
+			dash(0,dash_speed)
+			g.offsetY += speed;
+			move_vec.y += speed;
+			if(!anim) player.animation.play('walk-up');
 		}
 
 		if(keys.down('s') || keys.down('ArrowDown')){
 			dash(0,-dash_speed)
 			g.offsetY -= speed;
 			move_vec.y -= speed;
-			player.animation.play('walk-down');
+			if(!anim) player.animation.play('walk-down');
 		}
 
 		function dash(dx,dy){
@@ -314,30 +339,24 @@ document.on('keydown',e=>{
 			}
 		}
 
-		dash_current = Math.max(dash_current-1,0);
+		function getOut(){
+			let go_back = move_vec.mult(.05);
+			let movedout = false;
 
-		let go_back = move_vec.mult(.1);
-		let movedout = false;
 
-		while(ow.touchingSolid(player)){
-			movedout = true;
-			g.offsetX -= go_back.x;
-			g.offsetY -= go_back.y;
-		}
-
-		if(movedout){
-			for(let i=0;i<3;i++){
+			let stop_overflow = 0;
+			while(ow.touchingSolid(player)){
+				movedout = true;
 				g.offsetX -= go_back.x;
 				g.offsetY -= go_back.y;
+				if(++stop_overflow >= 100) {
+					console.warn('Player stuck');
+					break;
+				}
 			}
 		}
 
-
-		// if(ow.touchingSolid(player)){
-		// 	Hitbox.show = false;
-		// } else {
-		// 	Hitbox.show = true;
-		// }
+		dash_current = Math.max(dash_current-1,0);
 
 		g.draw();
 
@@ -355,8 +374,15 @@ document.on('keydown',e=>{
 		let result = false;
 		g.forEach(tile=>{
 			if(!tile.child) return;
+			let c = tile.getCenter();
+			let s2 = g.scale / 2;
+
+			tile.child.offsetX = c.x-s2;
+			tile.child.offsetY = c.y-s2;
+
 			tile.child.forEach(subtile=>{
-				result |=  subtile.solid && subtile.sprite?.touches(sprite);
+				subtile.sprite.position = subtile.getCenter();
+				result |=  subtile.solid && subtile.sprite.touches(sprite);
 				if(result) return true;
 			});
 		});
@@ -380,7 +406,10 @@ document.on('keydown',e=>{
 			if(tile.subsize){
 				for(let subtile of tile.child.tiles.flat()){
 					let tilecode = 0;
-					if(subtile.solid) tilecode |= 1;
+					if(subtile.solid)  tilecode |= 1;
+					if(subtile.dialog) tilecode |= 2;
+					if(subtile.event)  tilecode |= 4;
+					if(subtile.room)   tilecode |= 8;
 					// Add Flags on Each Tile 
 					// Each Flag represents a property or event
 					// Add Custom event codes
@@ -390,6 +419,19 @@ document.on('keydown',e=>{
 			result.maps.push(m);
 		}
 		// download('room.json',JSON.stringify(result));
+		return result;
+	}
+
+	ow.getSubtileAt = function(pos){
+		let result;
+		g.forEach(tile=>{
+			if(!tile.child) return;
+			let at = tile.child.getActiveTile(pos.x,pos.y);
+			if(at){
+				result = at;
+				return true;
+			}
+		});
 		return result;
 	}
 })(this);

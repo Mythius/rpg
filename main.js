@@ -1,6 +1,6 @@
 var sprites = [];
 
-Hitbox.show = true;
+// Hitbox.show = true;
 
 function start(){
 	STARTED = true;
@@ -44,4 +44,21 @@ function loop(){
 	}
 }
 
-// contextmenu()
+contextmenu(canvas,(choice,e)=>{
+	let pos = mouse.transformPos(e);
+	let t = Overworld.getSubtileAt(pos);
+	if(t){
+		if(choice == 'remove all'){
+			t.dialog = false;
+			t.event = false;
+			t.room = false;
+		} else {
+			if(typeof t[choice] !== 'undefined'){
+				t[choice] = !t[choice];
+			} else {
+				t[choice] = true;
+			}
+			// Update This and prompt for values
+		}
+	}
+},'dialog','room','event','remove all');
