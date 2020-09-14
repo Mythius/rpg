@@ -242,6 +242,7 @@ document.on('keydown',e=>{
 		} else {
 			var request = await fetch(mappath);
 			var d = await request.json();
+			if(d.song.length) audio.play(d.song,true,.3)
 			g = new Grid(d.width,d.height,d.scale);
 			let i = 0;
 			g.forEach(tile=>{
