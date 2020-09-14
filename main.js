@@ -8,7 +8,7 @@ function start(){
 	mouse.start(canvas);
 	keys.start();
 
-	Overworld.loadMap('assets/r1/room.json');
+	Overworld.loadMap('assets/r2/room.json');
 
 	loop();
 }
@@ -20,6 +20,7 @@ player.addAnimation('assets/blue-knight/blue-knight.anims');
 player.position = new Vector(canvas.width/2,canvas.height/2);
 player.setScale = new Vector(.5,.5);
 player.setOffset = new Vector(0,30);
+
 
 function breakloop(){
 	STOP = true;

@@ -1,0 +1,1 @@
+{"dirname":"assets/items/chest","frames":[{"frames":[0,1,2,3,4,5],"name":"open","fps":"15"},{"frames":[5,4,3,2,1,0],"name":"close","fps":"15"}],"count":6}

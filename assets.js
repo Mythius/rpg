@@ -27,3 +27,7 @@ createAsset('assets/r1/1.png');
 createAsset('assets/r1/2.png');
 createAsset('assets/r1/3.png');
 createAsset('assets/r1/4.png');
+createAsset('assets/r2/0.png');
+createAsset('assets/r2/1.png');
+createAsset('assets/r2/2.png');
+createAsset('assets/items/red_flower.png')

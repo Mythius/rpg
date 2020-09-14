@@ -234,9 +234,9 @@ document.on('keydown',e=>{
 		if(!mappath){
 			g = new Grid(3,1,960);
 			// audio.play('assets/S1.mp3',true);
-			g.getTileAt(0,0).img = assets['assets/r1/2.png'];
-			g.getTileAt(1,0).img = assets['assets/r1/1.png'];
-			g.getTileAt(2,0).img = assets['assets/r1/3.png'];
+			g.getTileAt(0,0).img = assets['assets/r2/2.png'];
+			g.getTileAt(1,0).img = assets['assets/r2/0.png'];
+			g.getTileAt(2,0).img = assets['assets/r2/1.png'];
 
 			g.forEach(tile=>{tile.addGrid(15)});
 		} else {
@@ -329,7 +329,7 @@ document.on('keydown',e=>{
 			if(keys.down('shift') && dash_current == 0){
 				keys.keys['shift'] = false;
 				dash_current = 40 * dash_cooldown;
-				for(let i=0;i<40;i+=10){
+				for(let i=0;i<200;i+=20){
 					setTimeout(()=>{
 						g.offsetX += dx;
 						g.offsetY += dy;
