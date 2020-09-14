@@ -8,6 +8,24 @@ document.on('keydown',e=>{
 	start();
 });
 
+class TileEntity{
+	constructor(type='flower',animation=''){
+		this.type = type;
+		this.subtile = null;
+		this.action = null;
+		this.animPath = animation;
+	}
+	addToSubtile(subtile){
+		this.subtile = subtile;
+		let s = new TileSprite(subtile);
+		s.addAnimation(this.animPath);
+		s.img = this.img;
+		subtile.entity = this;
+		return s;
+	};
+	activeate(){} // Override
+}
+
 (function(global){ // Menu Object
 	var mod = {};
 	global.Menu = mod;
@@ -179,6 +197,8 @@ document.on('keydown',e=>{
         });
     }
 
+    // Tile.prototype.drawImg = () => {};
+
 	Tile.prototype.draw = function(lines=false){
 		let c = this.getCenter();
 		let s2 = this.grid.scale/2;
@@ -192,6 +212,7 @@ document.on('keydown',e=>{
 		}
 		if(this.sprite){
 			this.sprite.position = this.getCenter();
+			this.drawImg();
 			if(DEBUGGING) this.sprite.DRAW(this.room?'yellow':this.dialog?this.event?'purple':'red':this.event?'blue':'transparent');
 		}
 		if(this.solid){
@@ -436,4 +457,15 @@ document.on('keydown',e=>{
 		});
 		return result;
 	}
+})(this);
+
+(function(global){
+	let pot = {};
+	global.Potions = pot;
+
+	pot.grinder = new TileEntity('grinder','assets/items/grinder/grinder.anims');
+	pot.grinder.activeate = function(){
+		console.log('Grinder Activated');
+	}
+
 })(this);

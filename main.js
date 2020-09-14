@@ -53,6 +53,12 @@ contextmenu(canvas,(choice,e)=>{
 			t.dialog = false;
 			t.event = false;
 			t.room = false;
+		} else if(choice == 'add entitiy'){
+			let s = prompt('Enter Entity');
+			if(s){
+				let Source = eval(s);
+				Source.addToSubtile(t);
+			}
 		} else {
 			if(typeof t[choice] !== 'undefined'){
 				t[choice] = !t[choice];
@@ -62,4 +68,4 @@ contextmenu(canvas,(choice,e)=>{
 			// Update This and prompt for values
 		}
 	}
-},'dialog','room','event','remove all');
+},'dialog','room','event','add entitiy','remove all');
