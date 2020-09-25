@@ -1,0 +1,25 @@
+{
+  "name": "chemicc",
+  "version": "1.0.0",
+  "description": "A rpg game based around potions",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mythius/rpg.git"
+  },
+  "author": "Matthias Southwick",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mythius/rpg/issues"
+  },
+  "homepage": "https://github.com/Mythius/rpg#readme",
+  "devDependencies": {
+    "electron": "^10.1.2",
+    "electron-packager": "^15.1.0",
+    "electron-winstaller": "^4.0.1"
+  }
+}
