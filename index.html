@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+    <title>Awesome Title</title>
     <style>
     @font-face {
         font-family: 'ps2p';
@@ -9,6 +9,14 @@
     }
     body {
         text-align: center;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(assets/r2/1.png);
+        background-size: 100%;
+        font-family: ps2p;
+        image-rendering: pixelated;
+        /*filter: brightness(.3);*/
+        position: fixed;
+        width: 100%;
+        height: 100%;
     }
     canvas {
         width: 100%;
@@ -17,10 +25,22 @@
     game {
         display: block;
         margin: auto;
-        width: 50px;
+        width: 0;
     }
     button{
         font-family: ps2p;
+        background: black;
+        font-size: 40px;
+        color: white;
+        border: 2px solid white;
+        position: fixed;
+        display: block;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 30px;
+        padding: 10px;
+        border-radius: 5px;
+        visibility: hidden;
     }
     </style>
     <link rel="stylesheet" type="text/css" href="contextmenu.css">
@@ -35,6 +55,7 @@
     <script src="audio.js"></script>
     <script src="assets.js"></script>
     <script src="contextmenu.js"></script>
+    <h1>Press Any Key to Start</h1>
     <game>
         <canvas width=1480 height=860 style="background-color:black"></canvas>
         <!-- <canvas width=1000 height=700 style="background-color:black"></canvas> -->

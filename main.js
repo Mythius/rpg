@@ -7,8 +7,10 @@ function start(){
 	game.requestFullscreen();
 	mouse.start(canvas);
 	keys.start();
+	show(obj('button'));
+	hide(obj('h1'));
 
-	Overworld.loadMap('assets/r2/room.json');
+	Overworld.loadMap('assets/r1/room.json');
 
 	loop();
 }
