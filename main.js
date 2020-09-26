@@ -13,6 +13,15 @@ function start(){
 	Overworld.loadMap('assets/r1/room.json');
 
 	loop();
+
+	Touch.init(data=>{
+		if(data.type == 'single'){
+			
+		}
+	})
+
+	new Gamepad.Joystick(new Vector(100,100));
+	new Gamepad.dPad(new Vector(400,400));
 }
 
 var STOP = false;
@@ -44,7 +53,11 @@ function loop(){
 			sprite.draw();
 		}
 		Menu.health.draw();
+
 	}
+
+	Gamepad.draw();
+
 }
 
 contextmenu(canvas,(choice,e)=>{

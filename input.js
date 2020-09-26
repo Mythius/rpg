@@ -70,10 +70,16 @@ class Touch{
     static resolved = [];
     static init(callback){
         document.on('touchstart',e=>{
+            mouse.down = true;
             for(let touch of e.changedTouches){
                 Touch.touches.push([touch]);
                 e.preventDefault();
             }
+        });
+        document.on('touchmove',e=>{
+            let mp = Mouse.transformPos(e);
+            mouse.pos.x = mp.x;
+            mouse.pos.y = mp.y;
         });
         document.on('touchend',e=>{
             let et = e.changedTouches[0];
@@ -91,6 +97,7 @@ class Touch{
                 });
                 Touch.touches = [];
                 Touch.resolved = [];
+                mouse.down = false;
             } else {
                 if(oe === undefined) return;
                 oe.push(et);
@@ -115,6 +122,7 @@ class Touch{
                     Touch.resolved = [];
                 } else {
                     Touch.resolved.push(Touch.touches.splice(Touch.touches.indexOf(oe),1));
+                    if(Touch.resolved.length == 0) mouse.down = false;
                 }
             }
         });
