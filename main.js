@@ -2,29 +2,32 @@ var sprites = [];
 
 // Hitbox.show = true;
 
+var DPAD;
+Gamepad.show = false;
+var STOP = false;
+
 function start(){
 	STARTED = true;
 	game.requestFullscreen();
 	mouse.start(canvas);
 	keys.start();
+	Touch.init(e=>{
+		Gamepad.show = true;
+	});
 	show(obj('button'));
 	hide(obj('h1'));
 
 	Overworld.loadMap('assets/r1/room.json');
 
+	// new Gamepad.Joystick(new Vector(100,100));
+	DPAD = new Gamepad.dPad(new Vector(200,500));
+
 	loop();
 
-	Touch.init(data=>{
-		if(data.type == 'single'){
-			
-		}
-	})
-
-	new Gamepad.Joystick(new Vector(100,100));
-	new Gamepad.dPad(new Vector(400,400));
 }
 
-var STOP = false;
+obj('h1').on('click',start);
+
 
 var player = new Sprite('assets/blue-knight/0.png');
 player.addAnimation('assets/blue-knight/blue-knight.anims');
@@ -53,34 +56,33 @@ function loop(){
 			sprite.draw();
 		}
 		Menu.health.draw();
-
 	}
 
 	Gamepad.draw();
 
 }
 
-contextmenu(canvas,(choice,e)=>{
-	let pos = mouse.transformPos(e);
-	let t = Overworld.getSubtileAt(pos);
-	if(t){
-		if(choice == 'remove all'){
-			t.dialog = false;
-			t.event = false;
-			t.room = false;
-		} else if(choice == 'add entitiy'){
-			let s = prompt('Enter Entity');
-			if(s){
-				let Source = eval(s);
-				Source.addToSubtile(t);
-			}
-		} else {
-			if(typeof t[choice] !== 'undefined'){
-				t[choice] = !t[choice];
-			} else {
-				t[choice] = true;
-			}
-			// Update This and prompt for values
-		}
-	}
-},'dialog','room','event','add entitiy','remove all');
+// contextmenu(canvas,(choice,e)=>{
+// 	let pos = mouse.transformPos(e);
+// 	let t = Overworld.getSubtileAt(pos);
+// 	if(t){
+// 		if(choice == 'remove all'){
+// 			t.dialog = false;
+// 			t.event = false;
+// 			t.room = false;
+// 		} else if(choice == 'add entitiy'){
+// 			let s = prompt('Enter Entity');
+// 			if(s){
+// 				let Source = eval(s);
+// 				Source.addToSubtile(t);
+// 			}
+// 		} else {
+// 			if(typeof t[choice] !== 'undefined'){
+// 				t[choice] = !t[choice];
+// 			} else {
+// 				t[choice] = true;
+// 			}
+// 			// Update This and prompt for values
+// 		}
+// 	}
+// },'dialog','room','event','add entitiy','remove all');

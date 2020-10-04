@@ -45,6 +45,9 @@ class mouse{
         document.addEventListener('mousedown', mousedown);
         document.addEventListener('contextmenu',e=>{e.preventDefault()});
     }
+    constructor(element=document.documentElement){
+        this.pos = {x:0,y:0};
+    }
 }
 class keys{
     static keys = [];
@@ -66,65 +69,80 @@ class keys{
     }
 }
 class Touch{
-    static touches = [];
-    static resolved = [];
-    static init(callback){
-        document.on('touchstart',e=>{
-            mouse.down = true;
-            for(let touch of e.changedTouches){
-                Touch.touches.push([touch]);
-                e.preventDefault();
-            }
+    static all = [];
+    static checkPos(callback){
+        for(let t of Touch.all){
+            callback(t);
+        }
+    }
+    static init(startcallback=()=>{}){
+        document.addEventListener('touchstart',e=>{
+            Touch.start(e,startcallback);
         });
-        document.on('touchmove',e=>{
-            let mp = Mouse.transformPos(e);
-            mouse.pos.x = mp.x;
-            mouse.pos.y = mp.y;
-        });
-        document.on('touchend',e=>{
-            let et = e.changedTouches[0];
-            let oe = Touch.touches.filter(ev=>ev[0].identifier==et.identifier)[0];
-            if(Touch.resolved.length == 0 && Touch.touches.length == 1){
-                let target = oe[0].target;
-                let br = target.getBoundingClientRect();
-                callback({
-                    type: 'single',
-                    dx: et.clientX - oe[0].clientX,
-                    dy: et.clientY - oe[0].clientY,
-                    x: et.clientX - br.left,
-                    y: et.clientY - br.top,
-                    target: oe[0].target
-                });
-                Touch.touches = [];
-                Touch.resolved = [];
-                mouse.down = false;
-            } else {
-                if(oe === undefined) return;
-                oe.push(et);
-                if(Touch.resolved.length > 0){
-                    let ot = Touch.resolved[0][0];
-                    callback({
-                        type: 'double',
-                        touch1: {
-                            dx: oe[1].clientX - oe[0].clientX,
-                            dy: oe[1].clientY - oe[0].clientY,
-                            x: oe[1].clientX,
-                            y: oe[1].clientY
-                        },
-                        touch2: {
-                            dx: ot[1].clientX - ot[0].clientX,
-                            dy: ot[1].clientY - ot[0].clientY,
-                            x: ot[1].clientX,
-                            y: ot[1].clientY
-                        }
-                    });
-                    Touch.touches = [];
-                    Touch.resolved = [];
-                } else {
-                    Touch.resolved.push(Touch.touches.splice(Touch.touches.indexOf(oe),1));
-                    if(Touch.resolved.length == 0) mouse.down = false;
+        document.addEventListener('touchmove',Touch.move);
+        document.addEventListener('touchend',Touch.end);
+    }
+    static start(event,onstart,onmove=()=>{},onend=()=>{}){
+        for(let touch of event.changedTouches){
+            return new Touch(touch,onstart,onmove,onend);
+        }
+    }
+    static move(e){
+        for(let touch of event.changedTouches){
+            for(let t of Touch.all){
+                if(touch.identifier === t.id){
+                    t.target = e.target;
+                    t.move(t);
+                    break;
                 }
             }
-        });
+        }
+    }
+    static end(e){
+        for(let touch of event.changedTouches){
+            for(let t of Touch.all){
+                if(touch.identifier === t.id){
+                    t.target = e.target;
+                    t.end(t);
+                    break;
+                }
+            }
+        }
+    }
+    constructor(touch,onstart,onmove,onend){
+        this.id = touch.identifier;
+        this.pos = {};
+        this.start = {};
+        let pos = mouse.transformPos(touch);
+        this.start.x = pos.x;
+        this.start.y = pos.y;
+        this.pos.x = pos.x;
+        this.pos.y = pos.y;
+        this.onstart = onstart;
+        this.onmove = onmove;
+        this.onend = onend;
+        Touch.all.push(this);
+        this.onstart(this);
+    }
+    move(e){
+        e.clientX = e.pos.x;
+        e.clientY = e.pos.y;
+        let pos = mouse.transformPos(e);
+        this.pos.x = pos.x;
+        this.pos.y = pos.y;
+        this.onmove(this);
+    }
+    end(e){
+        e.clientX = e.pos.x;
+        e.clientY = e.pos.y;
+        let pos = mouse.transformPos(e);
+        this.pos.x = pos.x;
+        this.pos.y = pos.y;
+        console.log(e);
+        let ix = Touch.all.indexOf(this);
+        if(ix != -1){
+            Touch.all.splice(ix,1);
+        }
+        this.onend(this);
     }
 }

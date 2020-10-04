@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 var STARTED = false;
 var DEBUGGING = false;
 document.on('keydown',e=>{
+	Gamepad.show = false;
 	if(STARTED) return;
 	start();
 });
@@ -309,7 +310,14 @@ class TileEntity{
 		move_vec.x = 0;
 		move_vec.y = 0;
 
-		if(keys.down('a') || keys.down('ArrowLeft')){
+		let left = keys.down('a') || keys.down('ArrowLeft') || DPAD.left.down;
+		let right = keys.down('d') || keys.down('ArrowRight') || DPAD.right.down;
+		let up = keys.down('w') || keys.down('ArrowUp') || DPAD.up.down;
+		let down = keys.down('s') || keys.down('ArrowDown') || DPAD.down.down;
+
+		if(up||down||left||right) debugger;
+
+		if(left){
 			dash(dash_speed,0)
 			g.offsetX += speed;
 			move_vec.x += speed;
@@ -318,7 +326,7 @@ class TileEntity{
 			anim = true;
 		}
 
-		if(keys.down('d') || keys.down('ArrowRight')){
+		if(right){
 			dash(-dash_speed,0)
 			g.offsetX -= speed;
 			move_vec.x -= speed;
@@ -333,14 +341,14 @@ class TileEntity{
 		move_vec.x = 0;
 		move_vec.y = 0;
 
-		if(keys.down('w') || keys.down('ArrowUp')){
+		if(up){
 			dash(0,dash_speed)
 			g.offsetY += speed;
 			move_vec.y += speed;
 			if(!anim) player.animation.play('walk-up');
 		}
 
-		if(keys.down('s') || keys.down('ArrowDown')){
+		if(down){
 			dash(0,-dash_speed)
 			g.offsetY -= speed;
 			move_vec.y -= speed;

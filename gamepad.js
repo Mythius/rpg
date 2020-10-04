@@ -6,6 +6,7 @@
 
 	Gamepad.color1 = 'red';
 	Gamepad.color2 = 'white';
+	Gamepad.lineWidth = 5;
 
 	Gamepad.button = {};
 	Gamepad.joystick = {};
@@ -36,6 +37,7 @@
 			ctx.save();
 			ctx.fill(this.socket);
 			ctx.stroke(this.socket);
+			// Todo: add Touch Events for Joystick
 			ctx.restore();
 			ctx.translate(this.offsetX,this.offsetY);
 			ctx.fill(this.stick);
@@ -51,15 +53,20 @@
 			this.path = new Path2D;
 			if(add) Gamepad.elements.push(this);
 		}
-		draw(){
-			ctx.save();
-			ctx.strokeStyle = this.color1;
-			ctx.fillStyle = this.color2;
-			ctx.translate(this.position.x,this.position.y);
+		draw(translate=true){
+			if(translate) ctx.save();
+			ctx.strokeStyle = Gamepad.color1;
+			ctx.fillStyle = Gamepad.color2;
+			ctx.lineWidth = Gamepad.lineWidth;
+			if(translate) ctx.translate(this.position.x,this.position.y);
 			ctx.fill(this.path);
 			ctx.stroke(this.path);
-			this.down = ctx.isPointInPath(this.path,mouse.pos.x,mouse.pos.y) // && mouse.down;
-			ctx.restore();
+			// this.down = ctx.isPointInPath(this.path,mouse.pos.x,mouse.pos.y) // && mouse.down;
+			this.down = false;
+			Touch.checkPos(touches=>{
+				this.down |= ctx.isPointInPath(this.path,touches.pos.x,touches.pos.y);
+			});
+			if(translate) ctx.restore();
 		}
 	}
 
@@ -78,17 +85,12 @@
 		}
 		draw(){
 			let btns = [this.up,this.right,this.down,this.left];
-			ctx.save();
 			ctx.beginPath();
+			ctx.save();
 			ctx.translate(this.position.x,this.position.y);
-			ctx.strokeStyle = this.color1;
-			ctx.fillStyle = this.color2;
 			for(let btn of btns){
-				ctx.fill(btn.path);
-				ctx.stroke(btn.path);
+				btn.draw(false);
 				ctx.rotate(Math.PI/2);
-				btn.down = mouse.down && ctx.isPointInPath(btn.path,mouse.pos.x,mouse.pos.y);
-				if(btn.down) console.log(btn);
 			}
 			ctx.restore();
 		}
@@ -110,16 +112,17 @@
 
 	// Define Looks
 
-	// Gamepad.button.circle.arc(0,0,50,0,Math.PI*2);
+	Gamepad.button.circle.arc(0,0,50,0,Math.PI*2);
+	// Gamepad.button.square.rect(-40,-40,80,80);
 
 	Gamepad.joystick.socket.arc(0,0,50,0,Math.PI*2);
 	Gamepad.joystick.stick.arc(0,0,15,0,Math.PI*2);
 
-	Gamepad.button.pentagon.moveTo(0,-10);
-	Gamepad.button.pentagon.lineTo(-30,-40);
+	Gamepad.button.pentagon.moveTo(0,0);
+	Gamepad.button.pentagon.lineTo(-30,-30);
 	Gamepad.button.pentagon.lineTo(-30,-90);
 	Gamepad.button.pentagon.lineTo(30,-90);
-	Gamepad.button.pentagon.lineTo(30,-40);
+	Gamepad.button.pentagon.lineTo(30,-30);
 	Gamepad.button.pentagon.closePath();
 
 
