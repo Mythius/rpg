@@ -2,9 +2,12 @@ var sprites = [];
 
 // Hitbox.show = true;
 
-var DPAD;
+var DPAD,JOYSTICK;
 Gamepad.show = false;
 var STOP = false;
+
+Gamepad.color1 = 'green';
+Gamepad.color2 = 'rgba(30,30,30,.5)';
 
 function start(){
 	STARTED = true;
@@ -19,8 +22,8 @@ function start(){
 
 	Overworld.loadMap('assets/r1/room.json');
 
-	// new Gamepad.Joystick(new Vector(100,100));
 	DPAD = new Gamepad.dPad(new Vector(200,500));
+	// JOYSTICK = new Gamepad.Joystick(new Vector(210,500));
 
 	loop();
 
@@ -55,6 +58,7 @@ function loop(){
 		for(let sprite of sprites){
 			sprite.draw();
 		}
+		// DPAD.draw(false);
 		Menu.health.draw();
 	}
 

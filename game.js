@@ -315,8 +315,6 @@ class TileEntity{
 		let up = keys.down('w') || keys.down('ArrowUp') || DPAD.up.down;
 		let down = keys.down('s') || keys.down('ArrowDown') || DPAD.down.down;
 
-		if(up||down||left||right) debugger;
-
 		if(left){
 			dash(dash_speed,0)
 			g.offsetX += speed;

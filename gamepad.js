@@ -27,21 +27,37 @@
 			this.stick = Gamepad.joystick.stick;
 			if(add) Gamepad.elements.push(this);
 		}
-		draw(){
+		draw(vis=true){
+			this.offsetX = 0;
+			this.offsetY = 0;
 			ctx.beginPath();
 			ctx.lineWidth = 10;
 			ctx.strokeStyle = Gamepad.color1;
 			ctx.fillStyle = Gamepad.color2;
 			ctx.save();
 			ctx.translate(this.position.x,this.position.y);
-			ctx.save();
-			ctx.fill(this.socket);
-			ctx.stroke(this.socket);
-			// Todo: add Touch Events for Joystick
-			ctx.restore();
+			var active = false;
+			const THIS = this;
+			Touch.checkPos(touches=>{
+				active |= ctx.isPointInPath(THIS.socket,touches.start.x,touches.start.y);
+				if(active){
+					let tx = touches.pos.x - this.position.x;
+					let ty = touches.pos.y - this.position.y;
+					let dist = Math.min(Vector.distance(0,0,tx,ty),100);
+					let dir = Vector.getDir(tx,ty) + 180;
+					let np = Vector.getPointIn(dir*Math.PI/180,dist);
+					THIS.offsetX = np.x;
+					THIS.offsetY = np.y;
+				}
+			});
+			if(vis) ctx.fill(this.socket);
+			if(vis) ctx.stroke(this.socket);
+			// ctx.restore();
+			// ctx.save();
 			ctx.translate(this.offsetX,this.offsetY);
-			ctx.fill(this.stick);
-			ctx.stroke(this.stick);
+			if(active) ctx.fillStyle = Gamepad.color1;
+			if(vis) ctx.fill(this.stick);
+			if(vis) ctx.stroke(this.stick);
 			ctx.restore();
 		}
 	}
@@ -53,19 +69,19 @@
 			this.path = new Path2D;
 			if(add) Gamepad.elements.push(this);
 		}
-		draw(translate=true){
+		draw(translate=true,vis=true){
 			if(translate) ctx.save();
 			ctx.strokeStyle = Gamepad.color1;
 			ctx.fillStyle = Gamepad.color2;
 			ctx.lineWidth = Gamepad.lineWidth;
 			if(translate) ctx.translate(this.position.x,this.position.y);
-			ctx.fill(this.path);
-			ctx.stroke(this.path);
-			// this.down = ctx.isPointInPath(this.path,mouse.pos.x,mouse.pos.y) // && mouse.down;
 			this.down = false;
 			Touch.checkPos(touches=>{
 				this.down |= ctx.isPointInPath(this.path,touches.pos.x,touches.pos.y);
 			});
+			if(this.down) ctx.fillStyle = Gamepad.color1;
+			if(vis) ctx.fill(this.path);
+			if(vis) ctx.stroke(this.path);
 			if(translate) ctx.restore();
 		}
 	}
@@ -83,13 +99,13 @@
 			this.right.path = Gamepad.button.pentagon;
 			if(add) Gamepad.elements.push(this);
 		}
-		draw(){
+		draw(vis=true){
 			let btns = [this.up,this.right,this.down,this.left];
 			ctx.beginPath();
 			ctx.save();
 			ctx.translate(this.position.x,this.position.y);
 			for(let btn of btns){
-				btn.draw(false);
+				btn.draw(false,vis);
 				ctx.rotate(Math.PI/2);
 			}
 			ctx.restore();
@@ -115,14 +131,14 @@
 	Gamepad.button.circle.arc(0,0,50,0,Math.PI*2);
 	// Gamepad.button.square.rect(-40,-40,80,80);
 
-	Gamepad.joystick.socket.arc(0,0,50,0,Math.PI*2);
-	Gamepad.joystick.stick.arc(0,0,15,0,Math.PI*2);
+	Gamepad.joystick.socket.arc(0,0,100,0,Math.PI*2);
+	Gamepad.joystick.stick.arc(0,0,30,0,Math.PI*2);
 
 	Gamepad.button.pentagon.moveTo(0,0);
-	Gamepad.button.pentagon.lineTo(-30,-30);
-	Gamepad.button.pentagon.lineTo(-30,-90);
-	Gamepad.button.pentagon.lineTo(30,-90);
-	Gamepad.button.pentagon.lineTo(30,-30);
+	Gamepad.button.pentagon.lineTo(-75,-75);
+	Gamepad.button.pentagon.lineTo(-75,-150);
+	Gamepad.button.pentagon.lineTo(75,-150);
+	Gamepad.button.pentagon.lineTo(75,-75);
 	Gamepad.button.pentagon.closePath();
 
 

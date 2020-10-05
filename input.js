@@ -45,9 +45,6 @@ class mouse{
         document.addEventListener('mousedown', mousedown);
         document.addEventListener('contextmenu',e=>{e.preventDefault()});
     }
-    constructor(element=document.documentElement){
-        this.pos = {x:0,y:0};
-    }
 }
 class keys{
     static keys = [];
@@ -88,22 +85,24 @@ class Touch{
         }
     }
     static move(e){
-        for(let touch of event.changedTouches){
+        for(let touch of e.changedTouches){
             for(let t of Touch.all){
                 if(touch.identifier === t.id){
-                    t.target = e.target;
-                    t.move(t);
+                    e.clientX = touch.clientX;
+                    e.clientY = touch.clientY;
+                    t.move(e);
                     break;
                 }
             }
         }
     }
     static end(e){
-        for(let touch of event.changedTouches){
+        for(let touch of e.changedTouches){
             for(let t of Touch.all){
                 if(touch.identifier === t.id){
-                    t.target = e.target;
-                    t.end(t);
+                    e.clientX = touch.clientX;
+                    e.clientY = touch.clientY;
+                    t.end(e);
                     break;
                 }
             }
@@ -125,20 +124,15 @@ class Touch{
         this.onstart(this);
     }
     move(e){
-        e.clientX = e.pos.x;
-        e.clientY = e.pos.y;
-        let pos = mouse.transformPos(e);
-        this.pos.x = pos.x;
-        this.pos.y = pos.y;
+        let np = mouse.transformPos(e);
+        this.pos.x = np.x;
+        this.pos.y = np.y;
         this.onmove(this);
     }
     end(e){
-        e.clientX = e.pos.x;
-        e.clientY = e.pos.y;
-        let pos = mouse.transformPos(e);
-        this.pos.x = pos.x;
-        this.pos.y = pos.y;
-        console.log(e);
+        let np = mouse.transformPos(e);
+        this.pos.x = np.x;
+        this.pos.y = np.y;
         let ix = Touch.all.indexOf(this);
         if(ix != -1){
             Touch.all.splice(ix,1);
