@@ -463,6 +463,10 @@ class TileEntity{
 		});
 		return result;
 	}
+
+	ow.getInteractive = function(){
+		
+	}
 })(this);
 
 (function(global){
@@ -473,5 +477,4 @@ class TileEntity{
 	pot.grinder.activeate = function(){
 		console.log('Grinder Activated');
 	}
-
 })(this);
