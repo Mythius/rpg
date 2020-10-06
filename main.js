@@ -5,6 +5,7 @@ var sprites = [];
 var DPAD,JOYSTICK;
 Gamepad.show = false;
 var STOP = false;
+var DISABLED = false;
 
 Gamepad.color1 = 'green';
 Gamepad.color2 = 'rgba(30,30,30,.5)';
@@ -20,7 +21,7 @@ function start(){
 	show(obj('button'));
 	hide(obj('h1'));
 
-	Overworld.loadMap('assets/r2/room.json');
+	Overworld.loadMap('assets/r1/room.json');
 
 	DPAD = new Gamepad.dPad(new Vector(200,500));
 	// JOYSTICK = new Gamepad.Joystick(new Vector(210,500));
@@ -45,6 +46,7 @@ function breakloop(){
 
 function loop(){
 	if(!STOP) setTimeout(loop,1000/40);
+	if(DISABLED) return;
 	ctx.clearRect(-2,-2,canvas.width+2,canvas.width+2);
 	if(keys.down('e')) {
 		Menu.paused = !Menu.paused;
@@ -67,25 +69,13 @@ if(DEBUGGING){
 	contextmenu(canvas,(choice,e)=>{
 		let pos = mouse.transformPos(e);
 		let t = Overworld.getSubtileAt(pos);
-		if(t){
-			if(choice == 'remove all'){
-				t.dialog = false;
-				t.event = false;
-				t.room = false;
-			} else if(choice == 'add entitiy'){
-				let s = prompt('Enter Entity');
-				if(s){
-					let Source = eval(s);
-					Source.addToSubtile(t);
-				}
-			} else {
-				if(typeof t[choice] !== 'undefined'){
-					t[choice] = !t[choice];
-				} else {
-					t[choice] = true;
-				}
-				// Update This and prompt for values
-			}
+		switch(choice){
+			case 'Toggle Solid': t.solid = !t.solid; break;
+			case 'On Click': input('Add Code').then(text=>{t.onactive=text||""}); break;
+			case 'On Step': input('Add Code').then(text=>{t.onstep=text||""}); break;
+			case 'Remove All': t.solid = false;t.onactive="";t.onstep=""; break;
+			case 'Export World': download('room.json',JSON.stringify(Overworld.export())); break;
+			default: console.warn(`Nothing happened on selection: ${choice}`); break;
 		}
-	},'dialog','room','event','add entitiy','remove all');
+	},'Toggle Solid','On Click','On Step','Export World','Remove All');
 }

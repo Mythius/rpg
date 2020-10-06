@@ -200,8 +200,6 @@ class TileEntity{
         });
     }
 
-    // Tile.prototype.drawImg = () => {};
-
 	Tile.prototype.draw = function(lines=false,color='transparent'){
 		let c = this.getCenter();
 		let s2 = this.grid.scale/2;
@@ -216,7 +214,7 @@ class TileEntity{
 		if(this.sprite){
 			this.sprite.position = this.getCenter();
 			this.drawImg();
-			if(DEBUGGING) this.sprite.DRAW(this.room?'yellow':this.dialog?this.event?'purple':'red':this.event?'blue':'transparent');
+			if(DEBUGGING) this.sprite.DRAW(this.onstep?this.onactive?'purple':'red':this.onactive?'blue':'transparent');
 			this.sprite.DRAW(color);
 		}
 		if(this.solid){

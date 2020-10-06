@@ -19,3 +19,32 @@ ctx > item:hover{
 ctx > item:last-of-type{
 	border-bottom: 0;
 }
+intext{
+	position: fixed;
+	background-color: #444;
+	border: 2px solid white;
+	border-radius: 5px;
+	display: block;
+	left: 50px;
+	top: 50px;
+	text-align: center;
+}
+intext > textarea{
+	color: white;
+	background-color: gray;
+	border: 2px solid white;
+	z-index: 5;
+}
+
+intext > button{
+	background-color: gray;
+	border: 2px solid white;
+	color: white;
+	display: inline-block;
+	position: relative;
+	transition: background-color .3s;
+}
+
+intext > button:hover{
+	background-color: black;
+}

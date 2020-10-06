@@ -31,3 +31,30 @@ function contextmenu(element,callback,...items){
 		}
 	});
 }
+
+async function input(label,template=''){
+	return new Promise(resolve=>{
+		DISABLED = true;
+		let element = create('intext');
+		let textbox = create('textarea');
+		let confirm = create('button','Save');
+		let cancel = create('button','Cancel');
+		element.appendChild(create('h3',label));
+		element.appendChild(textbox);
+		element.appendChild(create('br'));
+		element.appendChild(confirm);
+		element.appendChild(cancel);
+		textbox.value = template;
+		cancel.on('click',e=>{
+			element.remove();
+			resolve(template);
+			DISABLED = false;
+		});
+		confirm.on('click',e=>{
+			element.remove();
+			DISABLED = false;
+			resolve(textbox.value);
+		});
+		game.appendChild(element);
+	});
+}
