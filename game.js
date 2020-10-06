@@ -2,7 +2,7 @@ const game = obj('game');
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 var STARTED = false;
-var DEBUGGING = false;
+var DEBUGGING = true;
 document.on('keydown',e=>{
 	Gamepad.show = false;
 	if(STARTED) return;
@@ -200,12 +200,12 @@ class TileEntity{
 
     // Tile.prototype.drawImg = () => {};
 
-	Tile.prototype.draw = function(lines=false){
+	Tile.prototype.draw = function(lines=false,color='transparent'){
 		let c = this.getCenter();
 		let s2 = this.grid.scale/2;
 		// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
 		if(this.img){
-			ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2)
+			ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2);
 		}
 		if(this.hasPoint(mouse.pos.x,mouse.pos.y) && mouse.down && !this.child){
 			this.solid = !this.solid;
@@ -215,6 +215,7 @@ class TileEntity{
 			this.sprite.position = this.getCenter();
 			this.drawImg();
 			if(DEBUGGING) this.sprite.DRAW(this.room?'yellow':this.dialog?this.event?'purple':'red':this.event?'blue':'transparent');
+			this.sprite.DRAW(color);
 		}
 		if(this.solid){
 			if(DEBUGGING){
@@ -321,6 +322,8 @@ class TileEntity{
 			move_vec.x += speed;
 			player.animation.play('walk-side');
 			player.transformX = -1;
+			player.xdir = -1;
+			player.ydir = 0;
 			anim = true;
 		}
 
@@ -330,6 +333,8 @@ class TileEntity{
 			move_vec.x -= speed;
 			player.animation.play('walk-side');
 			player.transformX = 1;
+			player.xdir = 1;
+			player.ydir = 0;
 			anim = true;
 		}
 
@@ -343,6 +348,8 @@ class TileEntity{
 			dash(0,dash_speed)
 			g.offsetY += speed;
 			move_vec.y += speed;
+			player.ydir = -1;
+			player.xdir = 0;
 			if(!anim) player.animation.play('walk-up');
 		}
 
@@ -350,6 +357,8 @@ class TileEntity{
 			dash(0,-dash_speed)
 			g.offsetY -= speed;
 			move_vec.y -= speed;
+			player.ydir = 1;
+			player.xdir = 0;
 			if(!anim) player.animation.play('walk-down');
 		}
 
@@ -390,6 +399,11 @@ class TileEntity{
 		g.draw();
 
 		player.draw();
+
+
+		if(keys.down(' ')){
+			ow.interact();
+		}
 	}
 
 	ow.addSprite = function(properties={path:''}){
@@ -464,8 +478,49 @@ class TileEntity{
 		return result;
 	}
 
-	ow.getInteractive = function(){
-		
+	ow.getSubtile = function(pos){
+		let result;
+		g.forEach(tile=>{
+			if(!tile.child) return;
+
+			let at = tile.child.getTileAt(pos.x,pos.y);
+			if(at){
+				result = at;
+				return true;
+			}
+		});
+		return result;
+	}
+
+	ow.interact = function(){
+		let result=[];
+		let tx = player.xdir;
+		let ty = player.ydir;
+		let curtile = ow.getSubtileAt(player.pos);
+		let bndr = g.getActiveTile(player.x,player.y);
+		if(!bndr || !bndr.child) return [curtile];
+		if(curtile){
+			result.push(curtile);
+			if(!ty){
+				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y+ty));
+				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y+1));
+				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y-1));
+			}
+			if(!tx){
+				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y+ty));
+				result.push(bndr.child.getTileAt(curtile.x-1,curtile.y+ty));
+				result.push(bndr.child.getTileAt(curtile.x+1,curtile.y+ty));
+			}
+		}
+		if(DEBUGGING){
+			var color = 100;
+			for(let tile of result){
+				if(!tile) continue;
+				tile.draw(true,`HSL(0,100%,${color}%`);
+				color -=10;
+			}
+		}
+		return result.filter(e=>!!e);
 	}
 })(this);
 

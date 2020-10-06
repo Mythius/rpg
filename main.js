@@ -66,27 +66,29 @@ function loop(){
 
 }
 
-// contextmenu(canvas,(choice,e)=>{
-// 	let pos = mouse.transformPos(e);
-// 	let t = Overworld.getSubtileAt(pos);
-// 	if(t){
-// 		if(choice == 'remove all'){
-// 			t.dialog = false;
-// 			t.event = false;
-// 			t.room = false;
-// 		} else if(choice == 'add entitiy'){
-// 			let s = prompt('Enter Entity');
-// 			if(s){
-// 				let Source = eval(s);
-// 				Source.addToSubtile(t);
-// 			}
-// 		} else {
-// 			if(typeof t[choice] !== 'undefined'){
-// 				t[choice] = !t[choice];
-// 			} else {
-// 				t[choice] = true;
-// 			}
-// 			// Update This and prompt for values
-// 		}
-// 	}
-// },'dialog','room','event','add entitiy','remove all');
+if(DEBUGGING){
+	contextmenu(canvas,(choice,e)=>{
+		let pos = mouse.transformPos(e);
+		let t = Overworld.getSubtileAt(pos);
+		if(t){
+			if(choice == 'remove all'){
+				t.dialog = false;
+				t.event = false;
+				t.room = false;
+			} else if(choice == 'add entitiy'){
+				let s = prompt('Enter Entity');
+				if(s){
+					let Source = eval(s);
+					Source.addToSubtile(t);
+				}
+			} else {
+				if(typeof t[choice] !== 'undefined'){
+					t[choice] = !t[choice];
+				} else {
+					t[choice] = true;
+				}
+				// Update This and prompt for values
+			}
+		}
+	},'dialog','room','event','add entitiy','remove all');
+}

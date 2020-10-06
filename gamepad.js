@@ -52,8 +52,6 @@
 			});
 			if(vis) ctx.fill(this.socket);
 			if(vis) ctx.stroke(this.socket);
-			// ctx.restore();
-			// ctx.save();
 			ctx.translate(this.offsetX,this.offsetY);
 			if(active) ctx.fillStyle = Gamepad.color1;
 			if(vis) ctx.fill(this.stick);
