@@ -74,6 +74,8 @@ class TileEntity{
 			keys.keys['arrowdown'] = false;
 		}
 
+
+
 		mod.inventory.focus();
 
 		drawImage('assets/icons/menu.png',0,0,canvas.width,canvas.height);
@@ -537,5 +539,39 @@ class TileEntity{
 	pot.grinder = new TileEntity('grinder','assets/items/grinder/grinder.anims');
 	pot.grinder.activeate = function(){
 		console.log('Grinder Activated');
+	}
+})(this);
+
+(function(global){
+	var Dialog = {};
+	global.Dialog = Dialog;
+
+	var lastAnswer = "";
+
+	Dialog.fromCode = function(arr){
+		switch(arr[0]){ // Keyword, ask, say, 
+
+		}
+	}
+})(this);
+
+(function(global){ // Code Module
+	var Code = {};
+	global.Code = Code;
+
+	function run(code){
+		let lines = code.split('\n');
+		for(let line of lines){
+			runLine(line);
+		}
+	}
+
+	function runLine(line){
+		let words = line.split(' ');
+		switch(words[0].toLowerCase()){
+			case 'room': Overworld.loadMap(`assets/${words[1]}/room.json`); break;
+			case 'dialog': Dialog.fromCode(words.slice(1)); break;
+			default: console.warn('Error While Runing Code',line);
+		}
 	}
 })(this);
