@@ -186,9 +186,8 @@ class TileEntity{
 	var move_vec = new Vector;
 
 	Tile.prototype.solid = false;
-	Tile.prototype.dialog = false;
-	Tile.prototype.room = false;
-	Tile.prototype.event = false;
+	Tile.prototype.onstep = "";
+	Tile.prototype.onactive = "";
 
 	Tile.prototype.addGrid = function(rows=10){
 		subdivision = rows;
@@ -278,19 +277,10 @@ class TileEntity{
 					tile.addGrid(d.maps[i].sub.size);
 					let j=0;
 					tile.child.forEach(subtile=>{
-						let code = d.maps[i].sub.tilecodes[j];
-						if(code & 1){
-							subtile.solid = true;
-						}
-						if(code & 2){
-							subtile.dialog = true;
-						}
-						if(code & 4){
-							subtile.event = true;
-						}
-						if(code & 8){
-							subtile.room = true;
-						}
+						let o = d.maps[i].sub.tilecodes[j];
+						subtile.solid = o.s;
+						subtile.onstep = o.w;
+						subtile.onactive = o.i;
 						// Read Flags here
 						j++;
 					});
@@ -451,14 +441,10 @@ class TileEntity{
 			m.sub.tilecodes = [];
 			if(tile.subsize){
 				for(let subtile of tile.child.tiles.flat()){
-					let tilecode = 0;
-					if(subtile.solid)  tilecode |= 1;
-					if(subtile.dialog) tilecode |= 2;
-					if(subtile.event)  tilecode |= 4;
-					if(subtile.room)   tilecode |= 8;
-					// Add Flags on Each Tile 
-					// Each Flag represents a property or event
-					// Add Custom event codes
+					let tilecode = {};
+					tilecode.s = subtile.solid || false;
+					tilecode.w = subtile.onstep || "";
+					tilecode.i = subtile.onactive || "";
 					m.sub.tilecodes.push(tilecode);
 				}
 			}

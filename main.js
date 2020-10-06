@@ -20,13 +20,12 @@ function start(){
 	show(obj('button'));
 	hide(obj('h1'));
 
-	Overworld.loadMap('assets/r1/room.json');
+	Overworld.loadMap('assets/r2/room.json');
 
 	DPAD = new Gamepad.dPad(new Vector(200,500));
 	// JOYSTICK = new Gamepad.Joystick(new Vector(210,500));
 
 	loop();
-
 }
 
 obj('h1').on('click',start);
@@ -61,9 +60,7 @@ function loop(){
 		// DPAD.draw(false);
 		Menu.health.draw();
 	}
-
 	Gamepad.draw();
-
 }
 
 if(DEBUGGING){
