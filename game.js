@@ -175,6 +175,7 @@ class TileEntity{
 	var dash_cooldown = 3; // Seconds
 	var dash_speed = 30;
 	var dash_current = 0;
+	var subdivision = 15;
 
 	var g = new Grid(5,2,960);
 	ow.grid = g;
@@ -190,9 +191,11 @@ class TileEntity{
 	Tile.prototype.event = false;
 
 	Tile.prototype.addGrid = function(rows=10){
+		subdivision = rows;
         let scl = this.grid.scale / rows;
         this.subsize = rows;
         this.child = new Grid(rows,rows,scl);
+        this.child.parent = this;
         this.child.forEach(subtile=>{
         	let ts = new TileSprite(subtile);
         });
@@ -261,7 +264,7 @@ class TileEntity{
 			g.getTileAt(1,0).img = assets['assets/r2/0.png'];
 			g.getTileAt(2,0).img = assets['assets/r2/1.png'];
 
-			g.forEach(tile=>{tile.addGrid(15)});
+			g.forEach(tile=>{tile.addGrid(subdivision)});
 		} else {
 			var request = await fetch(mappath);
 			var d = await request.json();
@@ -492,24 +495,43 @@ class TileEntity{
 		return result;
 	}
 
+	ow.getGlobalSubtile = function(x,y){
+		let gx = Math.floor(x/subdivision);
+		let lx = x % subdivision;
+		let gy = Math.floor(y/subdivision);
+		let ly = y % subdivision;
+
+		let ct = g.getTileAt(gx,gy);
+		if(ct){
+			return ct.child.getTileAt(lx,ly);
+		}
+	}
+
+	ow.getGlobalPosition = function(subtile){
+		let x = subtile.grid.parent.x * subdivision + subtile.x;
+		let y = subtile.grid.parent.y * subdivision + subtile.y;
+		return {x,y};
+	}
+
 	ow.interact = function(){
 		let result=[];
 		let tx = player.xdir;
 		let ty = player.ydir;
 		let curtile = ow.getSubtileAt(player.pos);
-		let bndr = g.getActiveTile(player.x,player.y);
-		if(!bndr || !bndr.child) return [curtile];
+		if(!curtile) return [];
+		let curpos = ow.getGlobalPosition(curtile);
+		if(!curpos) return [curtile].filter(e=>!!e);
 		if(curtile){
 			result.push(curtile);
 			if(!ty){
-				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y+ty));
-				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y+1));
-				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y-1));
+				result.push(ow.getGlobalSubtile(curpos.x+tx,curpos.y+ty));
+				result.push(ow.getGlobalSubtile(curpos.x+tx,curpos.y+1));
+				result.push(ow.getGlobalSubtile(curpos.x+tx,curpos.y-1));
 			}
 			if(!tx){
-				result.push(bndr.child.getTileAt(curtile.x+tx,curtile.y+ty));
-				result.push(bndr.child.getTileAt(curtile.x-1,curtile.y+ty));
-				result.push(bndr.child.getTileAt(curtile.x+1,curtile.y+ty));
+				result.push(ow.getGlobalSubtile(curpos.x+tx,curpos.y+ty));
+				result.push(ow.getGlobalSubtile(curpos.x-1,curpos.y+ty));
+				result.push(ow.getGlobalSubtile(curpos.x+1,curpos.y+ty));
 			}
 		}
 		if(DEBUGGING){
@@ -524,7 +546,7 @@ class TileEntity{
 	}
 })(this);
 
-(function(global){
+(function(global){  // Interactable Items Module
 	let pot = {};
 	global.Potions = pot;
 
