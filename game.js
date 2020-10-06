@@ -393,9 +393,22 @@ class TileEntity{
 
 		player.draw();
 
+		let stepblocks = ow.step();
+		for(let t of stepblocks){
+			if(t.onstep){
+				Code.run(t.onstep,t);
+				break;
+			}
+		}
 
 		if(keys.down(' ')){
-			ow.interact();
+			let ts = ow.interact();
+			for(let t of ts){
+				if(t.onactive.length){
+					Code.run(t.onactive,t);
+					break;
+				}
+			}
 		}
 	}
 
@@ -530,6 +543,24 @@ class TileEntity{
 		}
 		return result.filter(e=>!!e);
 	}
+
+	ow.step = function(){
+		let result = [];
+		let curtile = ow.getSubtileAt(player.pos);
+		if(!curtile) return [];
+		let curpos = ow.getGlobalPosition(curtile);
+		result.push(curtile);
+		if(curpos){
+			let one_down = ow.getGlobalSubtile(curpos.x,curpos.y+1);
+			if(one_down) result.push(one_down);
+		}
+		if(DEBUGGING){
+			for(let tile of result){
+				tile.draw(true,'black');
+			}
+		}
+		return result;
+	}
 })(this);
 
 (function(global){  // Interactable Items Module
@@ -559,7 +590,10 @@ class TileEntity{
 	var Code = {};
 	global.Code = Code;
 
-	function run(code){
+	var self;
+
+	function run(code,tile){
+		self = tile;
 		let lines = code.split('\n');
 		for(let line of lines){
 			runLine(line);
@@ -574,4 +608,6 @@ class TileEntity{
 			default: console.warn('Error While Runing Code',line);
 		}
 	}
+
+	Code.run = run;
 })(this);
