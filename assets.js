@@ -3,6 +3,7 @@ function createAsset(path){
 	let img = new Image();
 	img.src = path;
 	assets[path] = img;
+	return img;
 }
 function drawImage(img,...args){
 	if(typeof img == "object"){
@@ -26,8 +27,8 @@ createAsset('assets/r1/0.png');
 createAsset('assets/r1/1.png');
 createAsset('assets/r1/2.png');
 createAsset('assets/r1/3.png');
-createAsset('assets/r1/4.png');
 createAsset('assets/r2/0.png');
 createAsset('assets/r2/1.png');
 createAsset('assets/r2/2.png');
 createAsset('assets/items/red_flower.png')
+createAsset('assets/r3/0.png');

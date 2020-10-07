@@ -6,6 +6,7 @@ var DPAD,JOYSTICK;
 Gamepad.show = false;
 var STOP = false;
 var DISABLED = false;
+var DEBUGGING = true;
 
 Gamepad.color1 = 'green';
 Gamepad.color2 = 'rgba(30,30,30,.5)';
@@ -75,7 +76,32 @@ if(DEBUGGING){
 			case 'On Step': input('Add Code',t.onstep).then(text=>{t.onstep=text||""}); break;
 			case 'Remove All': t.solid = false;t.onactive="";t.onstep=""; break;
 			case 'Export World': download('room.json',JSON.stringify(Overworld.export())); break;
+			case 'Position': let p = Overworld.getGlobalPosition(t); input(`Pos: (${p.x},${p.y})`); break;
+			case 'New Room': input('Enter Dimensions','3\n1').then(e=>{
+				let dim = new Vector(...e.split('\n').map(e=>+e));
+				Overworld.loadMap(dim);
+			}); break;
+			case 'Add Image': input('Enter Image Path').then(path=>{
+				let ot = t.grid.parent;
+				if(ot){
+					try{
+						ot.img = createAsset(path.trim());
+					} catch(e){}
+				}
+			}); break;
+			case 'Add Entity': input('Enter Entity Name').then(name=>{
+				if(!t) return;
+				var ent;
+				try{
+					ent = eval(name);
+				} catch(e){
+					return;
+				}
+				t.ent = name;
+				let arr = name.split('\n');
+				ent.addToSubtile(t);
+			})
 			default: console.warn(`Nothing happened on selection: ${choice}`); break;
 		}
-	},'Toggle Solid','On Click','On Step','Export World','Remove All');
+	},'Toggle Solid','Position','On Click','On Step','Export World','New Room','Add Image','Add Entity','Remove All');
 }

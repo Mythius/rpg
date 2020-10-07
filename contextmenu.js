@@ -33,7 +33,7 @@ function contextmenu(element,callback,...items){
 }
 
 async function input(label,template=''){
-	return new Promise(resolve=>{
+	return new Promise((resolve,reject)=>{
 		DISABLED = true;
 		let element = create('intext');
 		let textbox = create('textarea');
@@ -47,14 +47,22 @@ async function input(label,template=''){
 		textbox.value = template;
 		cancel.on('click',e=>{
 			element.remove();
-			resolve(template);
 			DISABLED = false;
+			reject(template);
 		});
 		confirm.on('click',e=>{
 			element.remove();
 			DISABLED = false;
 			resolve(textbox.value);
 		});
+		// textbox.on('keydown',e=>{
+		// 	if(e.keyCode == 13){
+		// 		element.remove();
+		// 		DISABLED = false;
+		// 		resolve(textbox.value);
+		// 	}
+		// })
 		game.appendChild(element);
+		textbox.focus();
 	});
 }

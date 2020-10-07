@@ -2,7 +2,6 @@ const game = obj('game');
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 var STARTED = false;
-var DEBUGGING = true;
 document.on('keydown',e=>{
 	Gamepad.show = false;
 	if(STARTED) return;
@@ -24,7 +23,7 @@ class TileEntity{
 		subtile.entity = this;
 		return s;
 	};
-	activeate(){} // Override
+	activate(){} // Override
 }
 
 (function(global){ // Menu Object
@@ -187,6 +186,8 @@ class TileEntity{
 	var prev_pos = new Vector;
 	var move_vec = new Vector;
 
+	var current_tile;
+
 	Tile.prototype.solid = false;
 	Tile.prototype.onstep = "";
 	Tile.prototype.onactive = "";
@@ -208,6 +209,8 @@ class TileEntity{
 		// ctx.rect(c.x-s2,c.y-s2,s2*2,s2*2);
 		if(this.img){
 			ctx.drawImage(this.img,c.x-s2,c.y-s2,s2*2,s2*2);
+		} else if(this.child){
+			this.child.draw(true,'white');
 		}
 		if(this.hasPoint(mouse.pos.x,mouse.pos.y) && mouse.down && !this.child){
 			this.solid = !this.solid;
@@ -241,11 +244,11 @@ class TileEntity{
 		}
 	}
 
-	Grid.prototype.draw = function(lines=false){
+	Grid.prototype.draw = function(lines=false,color='transparent'){
 		ctx.beginPath();
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = 'white';
-		this.forEach(tile=>{tile.draw(lines)});
+		this.forEach(tile=>{tile.draw(lines,color)});
 		ctx.stroke();
 
 		ctx.strokeStyle = 'green';
@@ -255,13 +258,10 @@ class TileEntity{
 		ctx.stroke();
 	}
 
-	ow.loadMap = async function(mappath){
-		if(!mappath){
-			g = new Grid(3,1,960);
+	ow.loadMap = async function(mappath={x:3,y:1},x=0,y=0){
+		if(!mappath || typeof mappath == 'object'){
+			g = new Grid(mappath.x||3,mappath.y||1,960);
 			// audio.play('assets/S1.mp3',true);
-			g.getTileAt(0,0).img = assets['assets/r2/2.png'];
-			g.getTileAt(1,0).img = assets['assets/r2/0.png'];
-			g.getTileAt(2,0).img = assets['assets/r2/1.png'];
 
 			g.forEach(tile=>{tile.addGrid(subdivision)});
 		} else {
@@ -281,6 +281,8 @@ class TileEntity{
 						subtile.solid = o.s;
 						subtile.onstep = o.w;
 						subtile.onactive = o.i;
+						subtile.ent = o.e;
+						if(o.e?.length) eval(o.e).addToSubtile(subtile);
 						// Read Flags here
 						j++;
 					});
@@ -288,7 +290,12 @@ class TileEntity{
 				i++;
 			});
 		}
-		g.offsetX = g.width * g.scale / 4;
+		current_tile = Overworld.getGlobalSubtile(x,y);
+		let t = current_tile.getCenter();
+		let p = t.grid.parent;
+		let pc = p.getCenter();
+		g.offsetX = -t.x;
+		g.offsetY = -t.y;
 		ow.grid = g;
 	}
 
@@ -394,11 +401,15 @@ class TileEntity{
 		player.draw();
 
 		let stepblocks = ow.step();
-		for(let t of stepblocks){
-			if(t.onstep){
-				Code.run(t.onstep,t);
-				break;
+
+		if(!stepblocks.includes(current_tile)){
+			for(let t of stepblocks){
+				if(t.onstep){
+					Code.run(t.onstep,t);
+					break;
+				}
 			}
+			current_tile = stepblocks[0];
 		}
 
 		if(keys.down(' ')){
@@ -458,6 +469,7 @@ class TileEntity{
 					tilecode.s = subtile.solid || false;
 					tilecode.w = subtile.onstep || "";
 					tilecode.i = subtile.onactive || "";
+					tilecode.e = subtile.ent;
 					m.sub.tilecodes.push(tilecode);
 				}
 			}
@@ -533,7 +545,7 @@ class TileEntity{
 				result.push(ow.getGlobalSubtile(curpos.x+1,curpos.y+ty));
 			}
 		}
-		if(DEBUGGING){
+		if(DEBUGGING && true){
 			var color = 100;
 			for(let tile of result){
 				if(!tile) continue;
@@ -554,7 +566,7 @@ class TileEntity{
 			let one_down = ow.getGlobalSubtile(curpos.x,curpos.y+1);
 			if(one_down) result.push(one_down);
 		}
-		if(DEBUGGING){
+		if(DEBUGGING && true){
 			for(let tile of result){
 				tile.draw(true,'black');
 			}
@@ -565,15 +577,15 @@ class TileEntity{
 
 (function(global){  // Interactable Items Module
 	let pot = {};
-	global.Potions = pot;
+	global.Potion = pot;
 
 	pot.grinder = new TileEntity('grinder','assets/items/grinder/grinder.anims');
-	pot.grinder.activeate = function(){
-		console.log('Grinder Activated');
+	pot.grinder.activate = async function(t){
+		await t.sprite.animation.play('grind');
 	}
 })(this);
 
-(function(global){
+(function(global){ // Dialog Module
 	var Dialog = {};
 	global.Dialog = Dialog;
 
@@ -603,8 +615,9 @@ class TileEntity{
 	function runLine(line){
 		let words = line.split(' ');
 		switch(words[0].toLowerCase()){
-			case 'room': Overworld.loadMap(`assets/${words[1]}/room.json`); break;
+			case 'room': Overworld.loadMap(`assets/${words[1]}/room.json`,+words[2],+words[3]); break;
 			case 'dialog': Dialog.fromCode(words.slice(1)); break;
+			case 'activate': if(self && self.entity) self.entity.activate(self); break;
 			default: console.warn('Error While Runing Code',line);
 		}
 	}
