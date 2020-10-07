@@ -292,10 +292,10 @@ class TileEntity{
 		}
 		current_tile = Overworld.getGlobalSubtile(x,y);
 		let t = current_tile.getCenter();
-		let p = t.grid.parent;
+		let p = current_tile.grid.parent;
 		let pc = p.getCenter();
-		g.offsetX = -t.x;
-		g.offsetY = -t.y;
+		g.offsetX = -t.x + canvas.width/2 - p.x * p.grid.scale;
+		g.offsetY = -t.y + canvas.height/2 - p.y * p.grid.scale;
 		ow.grid = g;
 	}
 
