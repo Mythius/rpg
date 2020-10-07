@@ -74,7 +74,7 @@ if(DEBUGGING){
 			case 'Toggle Solid': t.solid = !t.solid; break;
 			case 'On Click': input('Add Code',t.onactive).then(text=>{t.onactive=text||""}); break;
 			case 'On Step': input('Add Code',t.onstep).then(text=>{t.onstep=text||""}); break;
-			case 'Remove All': t.solid = false;t.onactive="";t.onstep=""; break;
+			case 'Remove All': t.solid = false;t.onactive="";t.onstep=""; t.ent=null; t.entity=null; break;
 			case 'Export World': download('room.json',JSON.stringify(Overworld.export())); break;
 			case 'Position': let p = Overworld.getGlobalPosition(t); input(`Pos: (${p.x},${p.y})`); break;
 			case 'New Room': input('Enter Dimensions','3\n1').then(e=>{
