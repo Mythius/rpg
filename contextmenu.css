@@ -29,6 +29,10 @@ intext{
 	top: 50px;
 	text-align: center;
 }
+intext > h3{
+	color: white;
+	padding: 5px;
+}
 intext > textarea{
 	color: white;
 	background-color: gray;

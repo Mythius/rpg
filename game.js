@@ -618,6 +618,13 @@ class TileEntity{
 			case 'room': Overworld.loadMap(`assets/${words[1]}/room.json`,+words[2],+words[3]); break;
 			case 'dialog': Dialog.fromCode(words.slice(1)); break;
 			case 'activate': if(self && self.entity) self.entity.activate(self); break;
+			case 'set': break;
+			case 'auidio': break;
+			case 'player': break;
+			case 'save': break;
+			case 'inventory': break;
+			case 'npc': break;
+			case 'animation': break;
 			default: console.warn('Error While Runing Code',line);
 		}
 	}

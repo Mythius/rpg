@@ -75,7 +75,7 @@ if(DEBUGGING){
 			case 'On Click': input('Add Code',t.onactive).then(text=>{t.onactive=text||""}); break;
 			case 'On Step': input('Add Code',t.onstep).then(text=>{t.onstep=text||""}); break;
 			case 'Remove All': t.solid = false;t.onactive="";t.onstep=""; t.ent=null; t.entity=null; break;
-			case 'Export World': download('room.json',JSON.stringify(Overworld.export())); break;
+			case 'Export Room': download('room.json',JSON.stringify(Overworld.export())); break;
 			case 'Position': let p = Overworld.getGlobalPosition(t); input(`Pos: (${p.x},${p.y})`); break;
 			case 'New Room': input('Enter Dimensions','3\n1').then(e=>{
 				let dim = new Vector(...e.split('\n').map(e=>+e));
@@ -103,5 +103,5 @@ if(DEBUGGING){
 			})
 			default: console.warn(`Nothing happened on selection: ${choice}`); break;
 		}
-	},'Toggle Solid','Position','On Click','On Step','Export World','New Room','Add Image','Add Entity','Remove All');
+	},'Toggle Solid','Position','On Click','On Step','On Load','New Room','Export Room','Add Image','Add Song','Add Entity','Copy Tile','Paste Tile','Remove All');
 }
