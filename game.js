@@ -282,7 +282,7 @@ class TileEntity{
 						subtile.onstep = o.w;
 						subtile.onactive = o.i;
 						subtile.ent = o.e;
-						if(o.e?.length) eval(o.e).addToSubtile(subtile);
+						if(o.e) eval(o.e).addToSubtile(subtile);
 						// Read Flags here
 						j++;
 					});
