@@ -1,0 +1,1 @@
+{"dirname":"assets/player","frames":[{"frames":[4,3,5,3],"name":"walk-up","fps":"6"},{"frames":[7,6,8,6],"name":"walk-down","fps":"6"},{"frames":[0,1,2,1],"name":"walk-side","fps":"10"}],"count":9}

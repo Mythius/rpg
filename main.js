@@ -6,7 +6,7 @@ var DPAD,JOYSTICK;
 Gamepad.show = false;
 var STOP = false;
 var DISABLED = false;
-var DEBUGGING = true;
+var DEBUGGING = false;
 
 Gamepad.color1 = 'green';
 Gamepad.color2 = 'rgba(30,30,30,.5)';
@@ -33,8 +33,8 @@ function start(){
 obj('h1').on('click',start);
 
 
-var player = new Sprite('assets/blue-knight/0.png');
-player.addAnimation('assets/blue-knight/blue-knight.anims');
+var player = new Sprite('assets/player/0.png');
+player.addAnimation('assets/player/player.anims');
 player.position = new Vector(canvas.width/2,canvas.height/2);
 player.setScale = new Vector(.5,.5);
 player.setOffset = new Vector(0,30);
