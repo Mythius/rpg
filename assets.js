@@ -34,3 +34,4 @@ createAsset('assets/items/red_flower.png')
 createAsset('assets/r3/0.png');
 createAsset('assets/garden1/0.png');
 createAsset('assets/garden1/1.png');
+createAsset('assets/dialogbox.png');

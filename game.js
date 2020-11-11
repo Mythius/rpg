@@ -8,24 +8,6 @@ document.on('keydown',e=>{
 	start();
 });
 
-class TileEntity{
-	constructor(type='flower',animation=''){
-		this.type = type;
-		this.subtile = null;
-		this.action = null;
-		this.animPath = animation;
-	}
-	addToSubtile(subtile){
-		this.subtile = subtile;
-		let s = new TileSprite(subtile);
-		s.addAnimation(this.animPath);
-		s.img = this.img;
-		subtile.entity = this;
-		return s;
-	};
-	activate(){} // Override
-}
-
 (function(global){ // Menu Object
 	var mod = {};
 	global.Menu = mod;
@@ -172,6 +154,8 @@ class TileEntity{
 	var ow = {};
 	global.Overworld = ow;
 
+	var ROOM_HITBOX;
+
 	var speed = 8;
 	var dash_cooldown = 3; // Seconds
 	var dash_speed = 30;
@@ -281,8 +265,6 @@ class TileEntity{
 						subtile.solid = o.s;
 						subtile.onstep = o.w;
 						subtile.onactive = o.i;
-						subtile.ent = o.e;
-						if(o.e) eval(o.e).addToSubtile(subtile);
 						// Read Flags here
 						j++;
 					});
@@ -297,130 +279,18 @@ class TileEntity{
 		g.offsetX = -t.x + canvas.width/2 - p.x * p.grid.scale;
 		g.offsetY = -t.y + canvas.height/2 - p.y * p.grid.scale;
 		ow.grid = g;
+		ROOM_HITBOX = new Hitbox(new Vector(g.width*g.scale/2,g.height*g.scale/2),g.width*g.scale,g.height*g.scale);
 	}
 
 	ow.draw = function(){
 
-		prev_pos.x = g.offsetX;
-		prev_pos.y = g.offsetY;
-
-		var anim = false;
-
-		getOut();
-
-		move_vec.x = 0;
-		move_vec.y = 0;
-
-		let left = keys.down('a') || keys.down('ArrowLeft') || DPAD.left.down;
-		let right = keys.down('d') || keys.down('ArrowRight') || DPAD.right.down;
-		let up = keys.down('w') || keys.down('ArrowUp') || DPAD.up.down;
-		let down = keys.down('s') || keys.down('ArrowDown') || DPAD.down.down;
-
-		if(left){
-			dash(dash_speed,0)
-			g.offsetX += speed;
-			move_vec.x += speed;
-			player.animation.play('walk-side');
-			player.transformX = -1;
-			player.xdir = -1;
-			player.ydir = 0;
-			anim = true;
-		}
-
-		if(right){
-			dash(-dash_speed,0)
-			g.offsetX -= speed;
-			move_vec.x -= speed;
-			player.animation.play('walk-side');
-			player.transformX = 1;
-			player.xdir = 1;
-			player.ydir = 0;
-			anim = true;
-		}
-
-		getOut();
-
-		
-		move_vec.x = 0;
-		move_vec.y = 0;
-
-		if(up){
-			dash(0,dash_speed)
-			g.offsetY += speed;
-			move_vec.y += speed;
-			player.ydir = -1;
-			player.xdir = 0;
-			if(!anim) player.animation.play('walk-up');
-		}
-
-		if(down){
-			dash(0,-dash_speed)
-			g.offsetY -= speed;
-			move_vec.y -= speed;
-			player.ydir = 1;
-			player.xdir = 0;
-			if(!anim) player.animation.play('walk-down');
-		}
-
-		function dash(dx,dy){
-			if(keys.down('shift') && dash_current == 0){
-				keys.keys['shift'] = false;
-				dash_current = 40 * dash_cooldown;
-				for(let i=0;i<200;i+=20){
-					setTimeout(()=>{
-						g.offsetX += dx;
-						g.offsetY += dy;
-						move_vec.x += dx;
-						move_vec.y += dy;
-					},1000/i);
-				}
-			}
-		}
-
-		function getOut(){
-			let go_back = move_vec.mult(.05);
-			let movedout = false;
-
-
-			let stop_overflow = 0;
-			while(ow.touchingSolid(player)){
-				movedout = true;
-				g.offsetX -= go_back.x;
-				g.offsetY -= go_back.y;
-				if(++stop_overflow >= 100) {
-					console.warn('Player stuck');
-					break;
-				}
-			}
-		}
-
-		dash_current = Math.max(dash_current-1,0);
-
 		g.draw();
+
+		movePlayer();
 
 		player.draw();
 
-		let stepblocks = ow.step();
-
-		if(!stepblocks.includes(current_tile)){
-			for(let t of stepblocks){
-				if(t.onstep){
-					Code.run(t.onstep,t);
-					break;
-				}
-			}
-			current_tile = stepblocks[0];
-		}
-
-		if(keys.down(' ')){
-			let ts = ow.interact();
-			for(let t of ts){
-				if(t.onactive.length){
-					Code.run(t.onactive,t);
-					break;
-				}
-			}
-		}
+		if(ROOM_HITBOX) ROOM_HITBOX.DRAW('yellow');
 	}
 
 	ow.addSprite = function(properties={path:''}){
@@ -431,7 +301,8 @@ class TileEntity{
 	}
 
 	ow.touchingSolid = function(sprite){
-		let result = false;
+
+		let result = ROOM_HITBOX?ROOM_HITBOX.touches(sprite):false;
 		g.forEach(tile=>{
 			if(!tile.child) return;
 			let c = tile.getCenter();
@@ -469,7 +340,6 @@ class TileEntity{
 					tilecode.s = subtile.solid || false;
 					tilecode.w = subtile.onstep || "";
 					tilecode.i = subtile.onactive || "";
-					tilecode.e = subtile.ent;
 					m.sub.tilecodes.push(tilecode);
 				}
 			}
@@ -573,15 +443,129 @@ class TileEntity{
 		}
 		return result;
 	}
-})(this);
 
-(function(global){  // Interactable Items Module
-	let pot = {};
-	global.Potion = pot;
+	function movePlayer(){
 
-	pot.grinder = new TileEntity('grinder','assets/items/grinder/grinder.anims');
-	pot.grinder.activate = async function(t){
-		await t.sprite.animation.play('grind');
+		prev_pos.x = g.offsetX;
+		prev_pos.y = g.offsetY;
+
+		if(ROOM_HITBOX) ROOM_HITBOX.position = new Vector(g.offsetX+g.width*g.scale/2,g.offsetY+g.height*g.scale/2);
+
+		var anim = false;
+
+		getOut();
+
+		move_vec.x = 0;
+		move_vec.y = 0;
+
+		let left = keys.down('a') || keys.down('ArrowLeft') || DPAD.left.down;
+		let right = keys.down('d') || keys.down('ArrowRight') || DPAD.right.down;
+		let up = keys.down('w') || keys.down('ArrowUp') || DPAD.up.down;
+		let down = keys.down('s') || keys.down('ArrowDown') || DPAD.down.down;
+
+		if(left){
+			dash(dash_speed,0)
+			g.offsetX += speed;
+			move_vec.x += speed;
+			player.animation.play('walk-side');
+			player.transformX = -1;
+			player.xdir = -1;
+			player.ydir = 0;
+			anim = true;
+		}
+
+		if(right){
+			dash(-dash_speed,0)
+			g.offsetX -= speed;
+			move_vec.x -= speed;
+			player.animation.play('walk-side');
+			player.transformX = 1;
+			player.xdir = 1;
+			player.ydir = 0;
+			anim = true;
+		}
+
+		getOut();
+
+		
+		move_vec.x = 0;
+		move_vec.y = 0;
+
+		if(up){
+			dash(0,dash_speed)
+			g.offsetY += speed;
+			move_vec.y += speed;
+			player.ydir = -1;
+			player.xdir = 0;
+			if(!anim) player.animation.play('walk-up');
+		}
+
+		if(down){
+			dash(0,-dash_speed)
+			g.offsetY -= speed;
+			move_vec.y -= speed;
+			player.ydir = 1;
+			player.xdir = 0;
+			if(!anim) player.animation.play('walk-down');
+		}
+
+		function dash(dx,dy){
+			if(keys.down('shift') && dash_current == 0){
+				keys.keys['shift'] = false;
+				dash_current = 40 * dash_cooldown;
+				for(let i=0;i<200;i+=20){
+					setTimeout(()=>{
+						g.offsetX += dx;
+						g.offsetY += dy;
+						move_vec.x += dx;
+						move_vec.y += dy;
+					},1000/i);
+				}
+			}
+		}
+
+		function getOut(){
+			let go_back = move_vec.mult(.05);
+			let movedout = false;
+
+
+			let stop_overflow = 0;
+			while(ow.touchingSolid(player)){
+				movedout = true;
+				g.offsetX -= go_back.x;
+				g.offsetY -= go_back.y;
+				if(++stop_overflow >= 100) {
+					console.warn('Player stuck');
+					break;
+				}
+			}
+		}
+
+		dash_current = Math.max(dash_current-1,0);
+
+
+
+		let stepblocks = ow.step();
+
+		if(!stepblocks.includes(current_tile)){
+			for(let t of stepblocks){
+				if(t.onstep){
+					Code.run(t.onstep,t);
+					break;
+				}
+			}
+			current_tile = stepblocks[0];
+		}
+
+		if(keys.down(' ')){
+			let ts = ow.interact();
+			for(let t of ts){
+				if(t.onactive.length){
+					Code.run(t.onactive,t);
+					break;
+				}
+			}
+		}
 	}
 })(this);
 
@@ -589,9 +573,13 @@ class TileEntity{
 	var Dialog = {};
 	global.Dialog = Dialog;
 
+	const box = new Button(canvas.width/2,canvas.height*3/4,canvas.width*.8,canvas.height*.4,click=>{},assets['assets/dialogbox.png']);
+
+
 	var lastAnswer = "";
 
-	Dialog.fromCode = function(arr){
+	Dialog.fromCode = async function(arr){
+
 		switch(arr[0]){ // Keyword, ask, say, 
 
 		}

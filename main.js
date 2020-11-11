@@ -6,7 +6,7 @@ var DPAD,JOYSTICK;
 Gamepad.show = false;
 var STOP = false;
 var DISABLED = false;
-var DEBUGGING = false;
+var DEBUGGING = true;
 
 Gamepad.color1 = 'green';
 Gamepad.color2 = 'rgba(30,30,30,.5)';
