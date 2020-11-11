@@ -1,3 +1,4 @@
 node_modules/*
 package-lock.json
 chemicc-win32-x64/*
+chemicc-installer/*
