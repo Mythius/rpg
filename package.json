@@ -21,5 +21,8 @@
     "electron": "^10.1.2",
     "electron-packager": "^15.1.0",
     "electron-winstaller": "^4.0.1"
+  },
+  "dependencies": {
+    "create-desktop-shortcuts": "^1.2.0"
   }
 }
